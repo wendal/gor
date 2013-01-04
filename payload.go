@@ -403,7 +403,7 @@ func ReadMuPage(path string) (ctx map[string]interface{}, err error) {
 		err = errors.New(path + " --> " + err.Error())
 		return
 	}
-	ctx["content"] = &DocContent{string(d)}
+	ctx["_content"] = &DocContent{string(d)}
 	return
 }
 

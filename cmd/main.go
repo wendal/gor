@@ -41,5 +41,10 @@ func main() {
 			log.Fatal(err)
 		}
 		log.Println(string(buf))
+	case "compile":
+		err := gor.Compile()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
