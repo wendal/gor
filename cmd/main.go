@@ -30,7 +30,7 @@ func main() {
 		}
 		gor.CmdInit(os.Args[1])
 	case "posts":
-		gor.Posts()
+		gor.ListPosts()
 	case "payload":
 		payload, err := gor.BuildPlayload()
 		if err != nil {

@@ -237,7 +237,7 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 	for _, _yearc := range _collated {
 		monthArray := make(CollatedMonths, 0)
 		for _, _monthc := range _yearc.months {
-			// TODO Sort Posts
+			_monthc.Posts = SortPosts(dictionary, _monthc.Posts)
 			monthArray = append(monthArray, _monthc)
 		}
 		sort.Sort(monthArray)
@@ -246,6 +246,13 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 		collated = append(collated, _yearc)
 	}
 	sort.Sort(collated)
+
+	for _, catalog := range catalogs {
+		catalog.Posts = SortPosts(dictionary, catalog.Posts)
+	}
+	for _, tag := range tags {
+		tag.Posts = SortPosts(dictionary, tag.Posts)
+	}
 
 	posts["tags"] = tags
 	posts["catalogs"] = catalogs
@@ -509,4 +516,31 @@ func CreatePostURL(db map[string]interface{}, basePath string, post map[string]i
 	} else {
 		post["url"] = basePath + url[1:]
 	}
+}
+
+type Posts []Mapper
+
+func (p Posts) Len() int {
+	return len(p)
+}
+
+func (p Posts) Less(i, j int) bool {
+	return p[i]["_date"].(time.Time).After(p[j]["_date"].(time.Time))
+}
+
+func (p Posts) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
+func SortPosts(dict map[string]Mapper, post_ids []string) []string {
+	posts := make(Posts, 0)
+	for _, post_id := range post_ids {
+		posts = append(posts, dict[post_id])
+	}
+	sort.Sort(posts)
+	post_ids = post_ids[0:0]
+	for _, post := range posts {
+		post_ids = append(post_ids, post.Id())
+	}
+	return post_ids
 }

@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func Posts() {
+func ListPosts() {
 	var payload Mapper
 	payload, err := BuildPlayload()
 	if err != nil {

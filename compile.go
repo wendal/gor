@@ -54,6 +54,8 @@ func Compile() error {
 
 func BaiscHelpers(payload Mapper) (helpers map[string]mustache.SectionRenderFunc) {
 	helpers = make(map[string]mustache.SectionRenderFunc)
+
+	//-------------------------------
 	helpers["posts_latest"] = func(nodes []mustache.Node, ctx mustache.Context, w io.Writer) error {
 		log.Println("Good")
 		return nil

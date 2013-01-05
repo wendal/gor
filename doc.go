@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
 )
 
 const (
@@ -24,22 +22,6 @@ func IsGorDir() bool {
 		}
 	}
 	return true
-}
-
-func ListPosts(suffixs ...string) (list []string) {
-	filepath.Walk("posts/", func(path string, info os.FileInfo, err error) error {
-		if strings.HasPrefix(path, ".") {
-			return nil
-		}
-		for _, suffix := range suffixs {
-			if strings.HasSuffix(path, suffix) {
-				list = append(list, path)
-				break
-			}
-		}
-		return nil
-	})
-	return
 }
 
 func PrintJson(v interface{}) {
