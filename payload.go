@@ -11,17 +11,19 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
 )
 
 func BuildPlayload() (payload map[string]interface{}, err error) {
+	defer runtime.GC()
 	payload = make(Mapper)
 	err = nil
 
 	//-----------------------------------
-	cnf, err := ReadConfig(".")
+	cnf, err := ReadYml("config.yml")
 	if err != nil {
 		return
 	}
@@ -37,6 +39,9 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 		err = errors.New("Miss theme config!")
 		return
 	}
+
+	payload["layouts"] = LoadLayouts(cnf["theme"].(string))
+
 	production_url := cnf["production_url"]
 	if production_url == nil {
 		err = errors.New("Miss production_url")
@@ -146,6 +151,10 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 			page["permalink"] = page_permalink_default
 		}
 
+		//if page["theme"] == nil {
+		//	page["theme"] = cnf["theme"].(string)
+		//}
+
 		//TODO create page URL
 		page_url := ""
 		switch {
@@ -155,6 +164,9 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 			page_url = page_id[0 : len(page_id)-len("index.md")]
 		default:
 			page_url = page_id[0 : len(page_id)-len(filepath.Ext(page_id))]
+			if page["title"] == nil && !strings.HasSuffix(page_url, "/") {
+				page["title"] = strings.Title(filepath.Base(page_url))
+			}
 		}
 		if strings.HasPrefix(page_url, "/") {
 			page["url"] = basePath + page_url[1:]
@@ -194,10 +206,14 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 			post["permalink"] = post_permalink_default
 		}
 
+		//if post["theme"] == nil {
+		//	post["theme"] = cnf["theme"].(string)
+		//}
+
 		for _, _tag := range post.Tags() {
 			tag := tags[_tag]
 			if tag == nil {
-				tag = &Tag{0, _tag, make([]string, 0), "/tag#" + _tag + "-ref"}
+				tag = &Tag{0, _tag, make([]string, 0), "/tags#" + _tag + "-ref"}
 				tags[_tag] = tag
 			}
 			tag.Count += 1
@@ -207,7 +223,7 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 		for _, _catalog := range post.Categories() {
 			catalog := catalogs[_catalog]
 			if catalog == nil {
-				catalog = &Catalog{0, _catalog, make([]string, 0), "/catalogs#" + _catalog + "-ref"}
+				catalog = &Catalog{0, _catalog, make([]string, 0), "/categories#" + _catalog + "-ref"}
 				catalogs[_catalog] = catalog
 			}
 			catalog.Count += 1
@@ -255,8 +271,8 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 	}
 
 	posts["tags"] = tags
-	posts["catalogs"] = catalogs
-	posts["chronological"] = chronological
+	posts["categories"] = catalogs
+	posts["chronological"] = SortPosts(dictionary, chronological)
 	posts["collated"] = collated
 
 	return
@@ -410,7 +426,7 @@ func ReadMuPage(path string) (ctx map[string]interface{}, err error) {
 		err = errors.New(path + " --> " + err.Error())
 		return
 	}
-	ctx["_content"] = &DocContent{string(d)}
+	ctx["_content"] = &DocContent{string(d), ""}
 	return
 }
 
@@ -451,6 +467,7 @@ func AsStrings(v interface{}) (strs []string) {
 
 type DocContent struct {
 	Source string `json:"-"`
+	Main   string `json:"-"`
 }
 
 type CollatedYear struct {
@@ -543,4 +560,50 @@ func SortPosts(dict map[string]Mapper, post_ids []string) []string {
 		post_ids = append(post_ids, post.Id())
 	}
 	return post_ids
+}
+
+func LoadLayouts(theme string) map[string]Mapper {
+	layouts := make(map[string]Mapper)
+	var layout Mapper
+	filepath.Walk("themes/"+theme+"/layouts/", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		filename := filepath.Base(path)
+		if strings.HasPrefix(filename, ".") {
+			return nil
+		}
+
+		f, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		buf := make([]byte, 3)
+		_, err = f.Read(buf)
+		if err != nil {
+			return err
+		}
+		f.Seek(0, os.SEEK_SET)
+		if string(buf) == "---" {
+			layout, err = ReadMuPage(path)
+			if err != nil {
+				return err
+			}
+
+		} else {
+			layout = make(map[string]interface{})
+			content, err := ioutil.ReadAll(f)
+			if err != nil {
+				return err
+			}
+			layout["_content"] = &DocContent{string(content), ""}
+		}
+		layouts[filename[0:len(filename)-len(filepath.Ext(filename))]] = layout
+		return nil
+	})
+	return layouts
 }
