@@ -46,5 +46,10 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+	case "post":
+		if len(os.Args) == 2 {
+			log.Fatal("gor post <title>")
+		}
+		gor.CreateNewPost(os.Args[2])
 	}
 }
