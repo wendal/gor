@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/wendal/gor"
 	"log"
+	"net/http"
 	"os"
 )
 
@@ -51,5 +52,8 @@ func main() {
 			log.Fatal("gor post <title>")
 		}
 		gor.CreateNewPost(os.Args[2])
+	case "http":
+		log.Println("Listen at 0.0.0.0:8080")
+		http.ListenAndServe(":8080", http.FileServer(http.Dir("compiled")))
 	}
 }
