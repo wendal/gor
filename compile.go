@@ -111,7 +111,10 @@ func Compile() error {
 	}
 	_ = str
 
-	// Render rss?
+	// Render rss
+	// TODO more plugins
+	rssPlugin := &RssPlugin{}
+	rssPlugin.Exec(topCtx)
 
 	log.Println("Done")
 	return nil
@@ -343,7 +346,7 @@ func PrapreMainContent(id string, content string, ctx mustache.Context) (string,
 		return str, err
 	}
 	if strings.HasSuffix(id, ".md") || strings.HasSuffix(id, ".markdown") {
-		log.Println("R: MD : " + id)
+		//log.Println("R: MD : " + id)
 		buf := bytes.NewBuffer(nil)
 		mdParser.Markdown(bytes.NewBufferString(str), markdown.ToHTML(buf))
 		str = buf.String()
