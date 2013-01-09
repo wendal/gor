@@ -11,9 +11,7 @@ gor 是使用golang实现的类Ruhoh静态博客引擎(Ruhoh like),基本兼容r
 ====================
 To install:
 
-    go get github.com/wendal/gor
-    cd $GOPATH/src/github.com/wendal/gor/cmd
-    go build gor.go
+    go install github.com/wendal/gor/gor
 
 ## Quick Start 快速入门
 ======================
