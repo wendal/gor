@@ -151,10 +151,6 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 			page["permalink"] = page_permalink_default
 		}
 
-		//if page["theme"] == nil {
-		//	page["theme"] = cnf["theme"].(string)
-		//}
-
 		//TODO create page URL
 		page_url := ""
 		switch {
@@ -178,7 +174,11 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 			navigation = append(navigation, page_id)
 		}
 	}
-	db["navigation"] = navigation
+	if site["navigation"] == nil {
+		db["navigation"] = navigation
+	} else {
+		db["navigation"] = AsStrings(site["navigation"])
+	}
 
 	dictionary, err := LoadPosts(cnf_posts["exclude"].(string))
 	if err != nil {
@@ -374,6 +374,9 @@ func LoadPost(path string) (ctx Mapper, err error) {
 	ctx["_date"] = date
 
 	ctx["categories"] = ctx.Categories()
+	if len(ctx.Categories()) == 0 {
+		ctx["categories"] = []string{"default"} // Set default catalog
+	}
 	ctx["tags"] = ctx.Tags()
 
 	return
@@ -518,7 +521,7 @@ func CreatePostURL(db map[string]interface{}, basePath string, post map[string]i
 		url = strings.Replace(url, ":month", fmt.Sprintf("%02d", month), -1)
 		url = strings.Replace(url, ":day", fmt.Sprintf("%02d", day), -1)
 		url = strings.Replace(url, ":title", fmt.Sprintf("%v", post["title"]), -1)
-		url = strings.Replace(url, ":filename", filepath.Dir(post["id"].(string)), -1)
+		url = strings.Replace(url, ":filename", filepath.Base(post["id"].(string)), -1)
 		if len(post["categories"].([]string)) > 0 {
 			url = strings.Replace(url, ":categories", post["categories"].([]string)[0], -1)
 		} else {
@@ -528,10 +531,11 @@ func CreatePostURL(db map[string]interface{}, basePath string, post map[string]i
 		url = strings.Replace(url, ":i_month", fmt.Sprintf("%d", month), -1)
 		url = strings.Replace(url, ":i_day", fmt.Sprintf("%d", day), -1)
 	}
+
 	if strings.HasPrefix(url, "/") {
 		post["url"] = basePath + url[1:]
 	} else {
-		post["url"] = basePath + url[1:]
+		post["url"] = basePath + url
 	}
 }
 

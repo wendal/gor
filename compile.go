@@ -108,12 +108,12 @@ func Compile() error {
 
 		WriteTo(post.Url(), str)
 	}
-	_ = str
 
-	// Render rss
-	// TODO more plugins
-	rssPlugin := &RssPlugin{}
-	rssPlugin.Exec(topCtx)
+	if Plugins != nil {
+		for _, plugin := range Plugins {
+			plugin.Exec(topCtx)
+		}
+	}
 
 	log.Println("Done")
 	return nil
@@ -452,7 +452,7 @@ func copyDir(src string, target string) error {
 	//log.Println("From", src, "To", target)
 	fst, err := os.Stat(src)
 	if err != nil {
-		log.Println(err)
+		//log.Println(err)
 		return err
 	}
 	if !fst.IsDir() {

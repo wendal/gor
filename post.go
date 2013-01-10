@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -23,7 +24,7 @@ func CreateNewPost(title string) {
 	if !IsGorDir() {
 		log.Fatal("Not Gor Dir, need config.yml")
 	}
-	path := "posts/" + title + ".md"
+	path := "posts/" + strings.Replace(title, " ", "-", -1) + ".md"
 	_, err := os.Stat(path)
 	if err == nil || !os.IsNotExist(err) {
 		log.Fatal("Post File Exist?!", path)

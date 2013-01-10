@@ -12,7 +12,7 @@ func ListPosts() {
 		log.Fatal(err)
 	}
 	posts := payload["db"].(map[string]interface{})["posts"].(map[string]interface{})["chronological"].([]string)
-	fmt.Printf("Posts Count=%d", len(posts))
+	fmt.Printf("Posts Count=%d\n", len(posts))
 	for _, id := range posts {
 		fmt.Println("-", id)
 	}
