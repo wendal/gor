@@ -259,7 +259,7 @@ func CtxHelpers(payload Mapper, ctxHelper map[string]func(interface{}) interface
 		ids, ok := in.([]interface{})
 		if !ok {
 			log.Println("Not String Array?")
-			return make(Mapper)
+			return false
 		}
 
 		_pages := make([]Mapper, 0)
@@ -271,7 +271,7 @@ func CtxHelpers(payload Mapper, ctxHelper map[string]func(interface{}) interface
 	ctxHelper["to_posts"] = func(in interface{}) interface{} {
 		ids, ok := in.([]string)
 		if !ok {
-			return make(Mapper)
+			return false
 		}
 		_posts := make([]Mapper, 0)
 		for _, id := range ids {
@@ -284,13 +284,13 @@ func CtxHelpers(payload Mapper, ctxHelper map[string]func(interface{}) interface
 		if !ok {
 			id, ok := in.(string)
 			if !ok {
-				return make(Mapper)
+				return false
 			}
 			post = dict[id]
 		}
 		index := post_id_map[post.Id()]
-		if index >= post_list_sz-1 {
-			return make(Mapper)
+		if index == post_list_sz-1 {
+			return false
 		}
 		return dict[chronological[index+1]]
 	}
@@ -299,14 +299,16 @@ func CtxHelpers(payload Mapper, ctxHelper map[string]func(interface{}) interface
 		if !ok {
 			id, ok := in.(string)
 			if !ok {
-				return make(Mapper)
+				return false
 			}
 			post = dict[id]
 		}
 		index := post_id_map[post.Id()]
-		if index-1 < 0 {
-			return make(Mapper)
+		//log.Println(index, post.Id())
+		if index == 0 {
+			return false
 		}
+		//log.Println("Post has previous", index, post.Id())
 		return dict[chronological[index-1]]
 	}
 
@@ -314,7 +316,7 @@ func CtxHelpers(payload Mapper, ctxHelper map[string]func(interface{}) interface
 		ids, ok := in.([]string)
 		if !ok {
 			log.Println("BAD to_categories")
-			return make(Mapper)
+			return false
 		}
 		_catalogs := make([]*Catalog, 0)
 		for _, id := range ids {
@@ -326,7 +328,7 @@ func CtxHelpers(payload Mapper, ctxHelper map[string]func(interface{}) interface
 	ctxHelper["to_tags"] = func(in interface{}) interface{} {
 		ids, ok := in.([]string)
 		if !ok {
-			return make(Mapper)
+			return false
 		}
 		_tags := make([]*Tag, 0)
 		for _, id := range ids {
