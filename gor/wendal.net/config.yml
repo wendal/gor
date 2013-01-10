@@ -1,0 +1,14 @@
+---
+# Usage: http://ruhoh.com/usage/configure/ 
+
+RuhohSpec: '1.0'
+theme : twitter
+production_url : http://sample.com
+
+posts:
+  permalink: /:categories/:title/
+  summary_lines: 20
+  latest: 10
+
+pages:
+  permalink: 'pretty'

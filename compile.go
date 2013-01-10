@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/knieriem/markdown"
 	"github.com/wendal/mustache"
 	"io"
 	"io/ioutil"
@@ -340,16 +339,14 @@ func CtxHelpers(payload Mapper, ctxHelper map[string]func(interface{}) interface
 }
 
 func PrapreMainContent(id string, content string, ctx mustache.Context) (string, error) {
-	mdParser := markdown.NewParser(&markdown.Extensions{Smart: true})
+	//mdParser := markdown.NewParser(&markdown.Extensions{Smart: true})
 	str, err := mustache.RenderString(content, ctx)
 	if err != nil {
 		return str, err
 	}
 	if strings.HasSuffix(id, ".md") || strings.HasSuffix(id, ".markdown") {
 		//log.Println("R: MD : " + id)
-		buf := bytes.NewBuffer(nil)
-		mdParser.Markdown(bytes.NewBufferString(str), markdown.ToHTML(buf))
-		str = buf.String()
+		str = MarkdownToHtml(str)
 	}
 	return str, nil
 }
@@ -521,8 +518,5 @@ func MakeSummary(post Mapper, lines int, topCtx mustache.Context) string {
 			str = post["_content"].(*DocContent).Main
 		}
 	}
-	mdParser := markdown.NewParser(&markdown.Extensions{Smart: true})
-	buf := bytes.NewBuffer(nil)
-	mdParser.Markdown(bytes.NewBufferString(str), markdown.ToHTML(buf))
-	return buf.String()
+	return MarkdownToHtml(str)
 }

@@ -8,7 +8,12 @@ import (
 	"os"
 )
 
+const (
+	VER = "1.0"
+)
+
 func main() {
+	log.Println("gor ver " + VER)
 	if len(os.Args) == 1 || len(os.Args) > 3 {
 		os.Exit(1)
 	}
@@ -29,7 +34,7 @@ func main() {
 		if len(os.Args) == 2 {
 			log.Fatal(os.Args[0], "new", "<dir>")
 		}
-		gor.CmdInit(os.Args[1])
+		gor.CmdInit(os.Args[2])
 	case "posts":
 		gor.ListPosts()
 	case "payload":

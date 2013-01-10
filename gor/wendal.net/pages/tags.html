@@ -1,0 +1,17 @@
+---
+description:
+---
+
+<ul class="tag_box inline">
+{{# tags }}
+  {{> tags_list }}
+{{/ tags }}
+</ul>
+
+
+{{# tags }}
+  <h2 id="{{name}}-ref">{{name}}</h2>
+  {{# posts?to_posts }}
+    <li><a href="{{url}}">{{title}}</a></li>
+  {{/ posts?to_posts }}
+{{/ tags }} 
