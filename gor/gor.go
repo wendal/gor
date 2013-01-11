@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"github.com/wendal/gor"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -41,7 +43,7 @@ func main() {
 		if len(args) == 1 {
 			log.Fatalln(os.Args[0], "new", "<dir>")
 		}
-		gor.CmdInit(args[1])
+		CmdInit(args[1])
 	case "posts":
 		gor.ListPosts()
 	case "payload":
@@ -78,5 +80,17 @@ func main() {
 				log.Fatal(err)
 			}
 		}
+	case ".update.zip.go":
+		d, _ := ioutil.ReadFile("gor-content.zip")
+		_zip, _ := os.OpenFile("zip.go", os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		header := `package main
+const INIT_ZIP="`
+		_zip.Write([]byte(header))
+		encoder := base64.NewEncoder(base64.StdEncoding, _zip)
+		encoder.Write(d)
+		encoder.Close()
+		_zip.Write([]byte(`"`))
+		_zip.Sync()
+		_zip.Close()
 	}
 }

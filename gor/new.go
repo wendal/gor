@@ -1,16 +1,14 @@
-package gor
+package main
 
 import (
 	"archive/zip"
+	"bytes"
+	"encoding/base64"
 	"io"
+	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"path/filepath"
-)
-
-const (
-	INIT_ZIP = "https://raw.github.com/wendal/gor/master/gor/gor-content.zip"
 )
 
 func CmdInit(path string) {
@@ -24,30 +22,10 @@ func CmdInit(path string) {
 		log.Fatal(err)
 	}
 
-	log.Println("Download init content zip")
+	decoder := base64.NewDecoder(base64.StdEncoding, bytes.NewBufferString(INIT_ZIP))
+	b, _ := ioutil.ReadAll(decoder)
 
-	resp, err := http.Get(INIT_ZIP)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		log.Fatal("Network error")
-	}
-
-	tmp, err := os.Create(path + "/tmp.zip")
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println("Downloading init content zip")
-	sz, err := io.Copy(tmp, resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	tmp.Sync()
-	tmp.Seek(0, os.SEEK_SET)
-
-	z, err := zip.NewReader(tmp, sz)
+	z, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,7 +54,5 @@ func CmdInit(path string) {
 		f.Close()
 		rc.Close()
 	}
-	tmp.Close()
-	os.Remove(path + "/tmp.zip")
 	log.Println("Done")
 }
