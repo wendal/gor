@@ -124,14 +124,16 @@ func RenderInLayout(content string, layoutName string, layouts map[string]Mapper
 	ctx2 := make(map[string]string)
 	ctx2["content"] = content
 	layout := layouts[layoutName]
-	str, err := mustache.RenderString(layout["_content"].(*DocContent).Source, ctx2, ctx)
+	//log.Println(layoutName, layout["_content"])
+	buf := &bytes.Buffer{}
+	err := layout["_content"].(*DocContent).TPL.Render(mustache.MakeContexts(ctx2, ctx), buf)
 	if err != nil {
 		return content, err
 	}
 	if layout.Layout() != "" {
-		return RenderInLayout(str, layout.Layout(), layouts, ctx)
+		return RenderInLayout(buf.String(), layout.Layout(), layouts, ctx)
 	}
-	return str, nil
+	return buf.String(), nil
 }
 
 func BaiscHelpers(payload Mapper, helpers map[string]mustache.SectionRenderFunc, topCtx mustache.Context) {

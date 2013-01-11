@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"runtime/pprof"
 )
 
 const (
@@ -66,5 +67,16 @@ func main() {
 	case "http":
 		log.Println("Listen at 0.0.0.0:8080")
 		http.ListenAndServe(":8080", http.FileServer(http.Dir("compiled")))
+	case "pprof":
+		f, _ := os.OpenFile("gor.pprof", os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		defer f.Close()
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+		for i := 0; i < 100; i++ {
+			err := gor.Compile()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
 	}
 }

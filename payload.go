@@ -5,20 +5,20 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/wendal/mustache"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"sort"
 	"strings"
 	"time"
 )
 
 func BuildPlayload() (payload map[string]interface{}, err error) {
-	defer runtime.GC()
+	//defer runtime.GC()
 	payload = make(Mapper)
 	err = nil
 
@@ -429,7 +429,7 @@ func ReadMuPage(path string) (ctx map[string]interface{}, err error) {
 		err = errors.New(path + " --> " + err.Error())
 		return
 	}
-	ctx["_content"] = &DocContent{string(d), ""}
+	ctx["_content"] = &DocContent{string(d), "", nil}
 	return
 }
 
@@ -469,8 +469,9 @@ func AsStrings(v interface{}) (strs []string) {
 }
 
 type DocContent struct {
-	Source string `json:"-"`
-	Main   string `json:"-"`
+	Source string             `json:"-"`
+	Main   string             `json:"-"`
+	TPL    *mustache.Template `json:"-"`
 }
 
 type CollatedYear struct {
@@ -597,14 +598,20 @@ func LoadLayouts(theme string) map[string]Mapper {
 			if err != nil {
 				return err
 			}
-
+			tpl, err := mustache.Parse(bytes.NewBufferString(layout["_content"].(*DocContent).Source))
+			if err != nil {
+				log.Println("Bad Layout", path, err)
+				return err
+			}
+			layout["_content"].(*DocContent).TPL = tpl
+			layout["_content"].(*DocContent).Source = ""
 		} else {
 			layout = make(map[string]interface{})
-			content, err := ioutil.ReadAll(f)
+			tpl, err := mustache.Parse(f)
 			if err != nil {
 				return err
 			}
-			layout["_content"] = &DocContent{string(content), ""}
+			layout["_content"] = &DocContent{"", "", tpl}
 		}
 		layouts[filename[0:len(filename)-len(filepath.Ext(filename))]] = layout
 		return nil
