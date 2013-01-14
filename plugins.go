@@ -57,7 +57,7 @@ func (*RssPlugin) Exec(topCtx mustache.Context) {
 		items = append(items, item)
 	}
 	rss := &Rss{"2.0", &RssChannel{title, production_url, pubDate, items}}
-	f, err := os.OpenFile("compiled/rss.xml", os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	f, err := os.OpenFile("compiled/rss.xml", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		log.Println("ERR When Create RSS", err)
 		return
@@ -69,7 +69,8 @@ func (*RssPlugin) Exec(topCtx mustache.Context) {
 		return
 	}
 	f.WriteString(`<?xml version="1.0"?>` + "\n" + `<rss version="2.0">`)
-	f.Write(data[len(`<rss version="2.0">`)+1 : len(data)-len("</Rss>")])
+	str := string(data)
+	f.Write([]byte(str[len(`<rss version="2.0">`) : len(str)-len("</rss>")]))
 	f.WriteString("</rss>")
 	f.Sync()
 	return
@@ -78,7 +79,7 @@ func (*RssPlugin) Exec(topCtx mustache.Context) {
 type SitemapPlugin struct{}
 
 func (SitemapPlugin) Exec(topCtx mustache.Context) {
-	f, err := os.OpenFile("compiled/sitemap.xml", os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	f, err := os.OpenFile("compiled/sitemap.xml", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		log.Println("Error when create sitemap", err)
 		return

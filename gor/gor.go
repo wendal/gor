@@ -70,7 +70,7 @@ func main() {
 		log.Println("Listen at 0.0.0.0:8080")
 		http.ListenAndServe(":8080", http.FileServer(http.Dir("compiled")))
 	case "pprof":
-		f, _ := os.OpenFile("gor.pprof", os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		f, _ := os.OpenFile("gor.pprof", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 		defer f.Close()
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
@@ -82,7 +82,7 @@ func main() {
 		}
 	case ".update.zip.go":
 		d, _ := ioutil.ReadFile("gor-content.zip")
-		_zip, _ := os.OpenFile("zip.go", os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		_zip, _ := os.OpenFile("zip.go", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 		header := `package main
 const INIT_ZIP="`
 		_zip.Write([]byte(header))

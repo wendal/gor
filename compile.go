@@ -485,7 +485,7 @@ func copyDir(src string, target string) error {
 			continue
 		}
 		defer f.Close()
-		f2, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		f2, err := os.OpenFile(dst, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 		if err != nil {
 			log.Println(err)
 			continue
