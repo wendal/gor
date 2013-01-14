@@ -70,7 +70,7 @@ func (*RssPlugin) Exec(topCtx mustache.Context) {
 	}
 	f.WriteString(`<?xml version="1.0"?>` + "\n" + `<rss version="2.0">`)
 	str := string(data)
-	f.Write([]byte(str[len(`<rss version="2.0">`) : len(str)-len("</rss>")]))
+	f.Write([]byte(str[len(`<rss version="2.0">`)+1 : len(str)-len("</rss>")]))
 	f.WriteString("</rss>")
 	f.Sync()
 	return
