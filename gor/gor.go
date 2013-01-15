@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	VER = "1.0.1"
+	VER = "1.0.4"
 )
 
 func init() {
