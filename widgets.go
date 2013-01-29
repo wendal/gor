@@ -130,6 +130,7 @@ type CommentsWidget Mapper
 
 func (self CommentsWidget) Prepare(mapper Mapper, topCtx mustache.Context) Mapper {
 	if mapper["comments"] != nil && !mapper["comments"].(bool) {
+		log.Println("Disable comments")
 		return nil
 	}
 	return Mapper(self)
@@ -175,6 +176,9 @@ func PrapareWidgets(widgets []Widget, mapper Mapper, topCtx mustache.Context) mu
 	for _, widget := range widgets {
 		mr := widget.Prepare(mapper, topCtx)
 		if mr != nil {
+			for k, v := range mr {
+				mapper[k] = v
+			}
 			mappers = append(mappers, mr)
 		}
 	}

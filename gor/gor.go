@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	VER = "1.0.4"
+	VER = "1.0.5"
 )
 
 func init() {
@@ -25,9 +25,13 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 	if len(args) == 0 || len(args) > 2 {
+		PrintUsage()
 		os.Exit(1)
 	}
 	switch args[0] {
+	default:
+		PrintUsage()
+		os.Exit(1)
 	case "config":
 		cnf, err := gor.ReadConfig(".")
 		if err != nil {
