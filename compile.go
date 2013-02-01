@@ -3,8 +3,8 @@ package gor
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
+	"github.com/wendal/errors"
 	"github.com/wendal/mustache"
 	"io"
 	"io/ioutil"
@@ -124,6 +124,9 @@ func RenderInLayout(content string, layoutName string, layouts map[string]Mapper
 	ctx2 := make(map[string]string)
 	ctx2["content"] = content
 	layout := layouts[layoutName]
+	if layout == nil {
+		return "", errors.New("Not such Layout : " + layoutName)
+	}
 	//log.Println(layoutName, layout["_content"])
 	buf := &bytes.Buffer{}
 	err := layout["_content"].(*DocContent).TPL.Render(mustache.MakeContexts(ctx2, ctx), buf)
@@ -346,6 +349,7 @@ func PrapreMainContent(id string, content string, ctx mustache.Context) (string,
 	//mdParser := markdown.NewParser(&markdown.Extensions{Smart: true})
 	str, err := mustache.RenderString(content, ctx)
 	if err != nil {
+		log.Println("Error When Parse >> " + id)
 		return str, err
 	}
 	if strings.HasSuffix(id, ".md") || strings.HasSuffix(id, ".markdown") {
