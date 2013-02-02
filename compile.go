@@ -453,6 +453,7 @@ func CopyResources(themeName string) {
 	copyDir("others", "compiled")
 	copyDir("media", "compiled/assets/media")
 	copyDir("themes/"+themeName, "compiled/assets/"+themeName)
+	copyDir("widgets", "compiled/assets/widgets")
 }
 
 func copyDir(src string, target string) error {
@@ -472,6 +473,9 @@ func copyDir(src string, target string) error {
 	}
 	for _, finfo := range finfos {
 		if strings.HasPrefix(finfo.Name(), ".") {
+			continue
+		}
+		if finfo.Name() == "config.yml" {
 			continue
 		}
 		//log.Println(finfo.Name())
