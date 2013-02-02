@@ -28,7 +28,13 @@ func Compile() error {
 	if err != nil {
 		return err
 	}
-	payload_ctx := mustache.MakeContextDir(payload, "partials/")
+
+	payload_ctx := mustache.MakeContextDir(payload, ".tmp_partials/")
+	themeName := FromCtx(payload_ctx, "site.config.theme").(string)
+
+	os.Remove(".tmp_partials")
+	copyDir("partials", ".tmp_partials")
+	copyDir("themes/"+themeName+"/partials", ".tmp_partials")
 
 	db_posts_dict, _ := payload_ctx.Get("db.posts.dictionary")
 	//log.Println(">>>>>>>>>>>>", len(db_posts_dict.Val.Interface().(map[string]Mapper)))
@@ -40,7 +46,6 @@ func Compile() error {
 		post["_content"].(*DocContent).Main = _tmp
 		//log.Fatal(_tmp)
 	}
-	themeName := FromCtx(payload_ctx, "site.config.theme").(string)
 
 	//mdParser = markdown.NewParser(&markdown.Extensions{Smart: true})
 	helpers := make(map[string]mustache.SectionRenderFunc)
