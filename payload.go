@@ -468,52 +468,6 @@ func AsStrings(v interface{}) (strs []string) {
 	return
 }
 
-type DocContent struct {
-	Source string             `json:"-"`
-	Main   string             `json:"-"`
-	TPL    *mustache.Template `json:"-"`
-}
-
-type CollatedYear struct {
-	Year   string
-	Months []*CollatedMonth
-	months map[string]*CollatedMonth `json:"-"`
-}
-
-type CollatedMonth struct {
-	Month  string
-	_month time.Month `json:"-"`
-	Posts  []string
-}
-
-type CollatedYears []*CollatedYear
-
-func (c CollatedYears) Len() int {
-	return len(c)
-}
-
-func (c CollatedYears) Swap(i, j int) {
-	c[i], c[j] = c[j], c[i]
-}
-
-func (c CollatedYears) Less(i, j int) bool {
-	return c[i].Year > c[j].Year
-}
-
-type CollatedMonths []*CollatedMonth
-
-func (c CollatedMonths) Len() int {
-	return len(c)
-}
-
-func (c CollatedMonths) Swap(i, j int) {
-	c[i], c[j] = c[j], c[i]
-}
-
-func (c CollatedMonths) Less(i, j int) bool {
-	return c[i]._month > c[j]._month
-}
-
 func CreatePostURL(db map[string]interface{}, basePath string, post map[string]interface{}) {
 	url := post["permalink"].(string)
 	if strings.Contains(url, ":") {
@@ -613,7 +567,9 @@ func LoadLayouts(theme string) map[string]Mapper {
 			}
 			layout["_content"] = &DocContent{"", "", tpl}
 		}
-		layouts[filename[0:len(filename)-len(filepath.Ext(filename))]] = layout
+		layoutName := filename[0 : len(filename)-len(filepath.Ext(filename))]
+		layouts[layoutName] = layout
+		log.Println("Load Layout : " + layoutName)
 		return nil
 	})
 	return layouts

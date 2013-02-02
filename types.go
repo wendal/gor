@@ -2,7 +2,9 @@ package gor
 
 import (
 	"fmt"
+	"github.com/wendal/mustache"
 	"log"
+	"time"
 )
 
 type Mapper map[string]interface{}
@@ -78,4 +80,50 @@ func (m Mapper) GetStrings(key string) (strs []string) {
 		log.Println(">>", v)
 	}
 	return
+}
+
+type DocContent struct {
+	Source string             `json:"-"`
+	Main   string             `json:"-"`
+	TPL    *mustache.Template `json:"-"`
+}
+
+type CollatedYear struct {
+	Year   string
+	Months []*CollatedMonth
+	months map[string]*CollatedMonth `json:"-"`
+}
+
+type CollatedMonth struct {
+	Month  string
+	_month time.Month `json:"-"`
+	Posts  []string
+}
+
+type CollatedYears []*CollatedYear
+
+func (c CollatedYears) Len() int {
+	return len(c)
+}
+
+func (c CollatedYears) Swap(i, j int) {
+	c[i], c[j] = c[j], c[i]
+}
+
+func (c CollatedYears) Less(i, j int) bool {
+	return c[i].Year > c[j].Year
+}
+
+type CollatedMonths []*CollatedMonth
+
+func (c CollatedMonths) Len() int {
+	return len(c)
+}
+
+func (c CollatedMonths) Swap(i, j int) {
+	c[i], c[j] = c[j], c[i]
+}
+
+func (c CollatedMonths) Less(i, j int) bool {
+	return c[i]._month > c[j]._month
 }

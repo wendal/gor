@@ -1,9 +1,10 @@
 package gor
 
 import (
-	"errors"
 	"fmt"
+	"github.com/wendal/errors"
 	"github.com/wendal/mustache"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -60,8 +61,10 @@ func init() {
 	WidgetBuilders["google_prettify"] = BuildGoogle_prettify
 }
 
-func LoadWidgets(topCtx mustache.Context) ([]Widget, error) {
+func LoadWidgets(topCtx mustache.Context) ([]Widget, string, error) {
 	widgets := make([]Widget, 0)
+	assets := ""
+
 	err := filepath.Walk("widgets", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
@@ -86,7 +89,18 @@ func LoadWidgets(topCtx mustache.Context) ([]Widget, error) {
 		}
 		builderFunc := WidgetBuilders[info.Name()]
 		if builderFunc == nil {
-			log.Println("NO WidgetBuilder >>", cnf_path)
+			_widget, _assets, _err := BuildCustomWidget(info.Name(), path, cnf)
+			if _err != nil {
+				log.Println("NO WidgetBuilder >>", cnf_path, _err)
+			}
+			if _widget != nil {
+				widgets = append(widgets, _widget)
+				if _assets != nil {
+					for _, asset := range _assets {
+						assets += asset + "\n"
+					}
+				}
+			}
 			return nil
 		}
 		widget, err := builderFunc(cnf, topCtx)
@@ -97,7 +111,7 @@ func LoadWidgets(topCtx mustache.Context) ([]Widget, error) {
 		log.Println("Load widget from ", cnf_path)
 		return nil
 	})
-	return widgets, err
+	return widgets, assets, err
 }
 
 //-------------------------------------------------------------------------------------
@@ -183,4 +197,46 @@ func PrapareWidgets(widgets []Widget, mapper Mapper, topCtx mustache.Context) mu
 		}
 	}
 	return mustache.MakeContexts(mappers...)
+}
+
+type CustomWidget struct {
+	name   string
+	layout *DocContent
+	mapper Mapper
+}
+
+func (c *CustomWidget) Prepare(mapper Mapper, ctx mustache.Context) Mapper {
+	return Mapper(map[string]interface{}{c.name: c.layout.Source})
+}
+
+func BuildCustomWidget(name string, dir string, cnf Mapper) (Widget, []string, error) {
+	layoutName, ok := cnf["layout"]
+	if !ok || layoutName == "" {
+		log.Println("Skip Widget : " + dir)
+		return nil, nil, nil
+	}
+
+	layoutFilePath := dir + "/layouts/" + layoutName.(string) + ".html"
+	f, err := os.Open(layoutFilePath)
+	if err != nil {
+		return nil, nil, errors.New("Fail to load Widget Layout" + dir + "\n" + err.Error())
+	}
+	defer f.Close()
+	cont, err := ioutil.ReadAll(f)
+	if err != nil {
+		return nil, nil, errors.New("Fail to load Widget Layout" + dir + "\n" + err.Error())
+	}
+
+	assets := []string{}
+	for _, js := range cnf.GetStrings("javascripts") {
+		path := "/assets/" + dir + "/javascripts/" + js
+		assets = append(assets, fmt.Sprintf("<script type=\"text/javascript\" src=\"%s\"></script>", path))
+	}
+	for _, css := range cnf.GetStrings("stylesheets") {
+		path2 := "/assets/" + dir + "/stylesheets/" + css
+		assets = append(assets, fmt.Sprintf("<link href=\"%s\" type=\"text/css\" rel=\"stylesheet\" media=\"all\">", path2))
+	}
+
+	return &CustomWidget{name, &DocContent{string(cont), string(cont), nil}, cnf}, assets, nil
+
 }

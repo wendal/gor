@@ -49,7 +49,7 @@ func Compile() error {
 	dynamicCtx := make(Mapper)
 	topCtx := mustache.MakeContexts(payload_ctx, helpers, ctxHelpers, map[string]Mapper{"dynamic": dynamicCtx})
 
-	widgets, err := LoadWidgets(topCtx)
+	widgets, widget_assets, err := LoadWidgets(topCtx)
 	if err != nil {
 		return err
 	}
@@ -60,9 +60,8 @@ func Compile() error {
 	CtxHelpers(payload, ctxHelpers, topCtx)
 	layouts = payload["layouts"].(map[string]Mapper)
 
-	widget_assets := ""
 	if len(widgets) > 0 {
-		widget_assets = PrapareAssets(themeName, "widgets", topCtx)
+		widget_assets += PrapareAssets(themeName, "widgets", topCtx)
 	}
 
 	CopyResources(themeName)
@@ -428,7 +427,7 @@ func PrapareAssets(theme string, layoutName string, topCtx mustache.Context) str
 				if strings.HasPrefix(javascript, "http://") || strings.HasPrefix(javascript, "https:") {
 					assets = append(assets, fmt.Sprintf("<script src=\"%s\"></script>", javascript))
 				} else {
-					assets = append(assets, fmt.Sprintf("<script src=\"%s/%s\"></script>", theme_javascripts_path+"/"+javascript))
+					assets = append(assets, fmt.Sprintf("<script src=\"%s/%s\"></script>", theme_javascripts_path, javascript))
 				}
 			}
 		case map[string]interface{}:
@@ -437,7 +436,7 @@ func PrapareAssets(theme string, layoutName string, topCtx mustache.Context) str
 				if strings.HasPrefix(javascript, "http://") || strings.HasPrefix(javascript, "https:") {
 					assets = append(assets, fmt.Sprintf("<script src=\"%s\"></script>", javascript))
 				} else {
-					assets = append(assets, fmt.Sprintf("<script src=\"%s/%s\"></script>", "/assets/twitter/widgets/"+javascript))
+					assets = append(assets, fmt.Sprintf("<script src=\"%s/%s\"> </script>", "/assets/twitter/widgets/", javascript))
 				}
 			}
 		}
