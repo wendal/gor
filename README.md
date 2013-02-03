@@ -11,7 +11,14 @@ gor 是使用golang实现的类Ruhoh静态博客引擎(Ruhoh like),基本兼容r
 ====================
 To install:
 
+    go get -u github.com/wendal/gor
     go install github.com/wendal/gor/gor
+
+在Mac下使用brew的用户
+
+如果是通过[brew](https://github.com/mxcl/homebrew)来安装`go`，并且没有设置`$GOROOT`跟`$GOPATH`的话，请使用如下命令
+
+    ln -s /usr/local/Cellar/go/1.0.3/bin/gor /usr/local/bin
 
 ## Quick Start 快速入门
 ======================
@@ -19,13 +26,13 @@ To install:
 新建站点
 -------
 
-	gor new kkkk.com
-    #执行完毕后, 会生成kkk.com文件夹,包含基本素材及演示文章
+	gor new example.com
+    #执行完毕后, 会生成example.com文件夹,包含基本素材及演示文章
 
 新建单篇博客
 ----------
 
-	cd kkkk.com
+	cd example.com
 	gor post "goodday"
 	#即可生成 post/goodday.md文件, 打开你的markdown编辑器即可编写
 
