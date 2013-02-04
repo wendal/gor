@@ -148,7 +148,7 @@ func BaiscHelpers(payload Mapper, helpers map[string]mustache.SectionRenderFunc,
 	chronological := FromCtx(topCtx, "db.posts.chronological").([]string)
 	latest_size := FromCtx(topCtx, "site.config.posts.latest").(int)
 	dict := FromCtx(topCtx, "db.posts.dictionary").(map[string]Mapper)
-	summary_lines := FromCtx(topCtx, "site.config.posts.summary_lines").(int)
+	summary_lines := int(FromCtx(topCtx, "site.config.posts.summary_lines").(int64))
 	latest_posts := make([]Mapper, 0)
 	for _, id := range chronological {
 		latest_posts = append(latest_posts, dict[id])
