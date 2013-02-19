@@ -18,7 +18,10 @@ func (m Mapper) GetString(key string) string {
 	if val == nil {
 		return ""
 	}
-	return val.(string)
+	if str, ok := val.(string); ok {
+		return str
+	}
+	return fmt.Sprintf("%v", val)
 }
 
 func (m Mapper) GetInt(key string) int64 {
