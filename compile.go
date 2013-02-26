@@ -14,6 +14,8 @@ import (
 	"strings"
 )
 
+var current_page_id string
+
 func Compile() error {
 	var payload Mapper
 	var ctx mustache.Context
@@ -77,6 +79,7 @@ func Compile() error {
 		docCont = page["_content"].(*DocContent)
 		top := make(map[string]interface{})
 		top["current_page_id"] = id
+		current_page_id = id
 		top["page"] = page
 		top["assets"] = PrapareAssets(themeName, page.Layout(), topCtx) + widget_assets
 		widgetCtx := PrapareWidgets(widgets, page, topCtx)
@@ -104,7 +107,7 @@ func Compile() error {
 		docCont = post["_content"].(*DocContent)
 		widgetCtx := PrapareWidgets(widgets, post, topCtx)
 		ctx = mustache.MakeContexts(post, top, topCtx, widgetCtx)
-
+		current_page_id = id
 		str, err = RenderInLayout(docCont.Main, post.Layout(), layouts, ctx)
 		if err != nil {
 			return errors.New(id + ">" + err.Error())
@@ -264,7 +267,6 @@ func CtxHelpers(payload Mapper, ctxHelper map[string]func(interface{}) interface
 	}
 
 	ctxHelper["to_pages"] = func(in interface{}) interface{} {
-		//log.Println(in)
 		ids, ok := in.([]interface{})
 		if !ok {
 			log.Println("Not String Array?")
@@ -273,7 +275,9 @@ func CtxHelpers(payload Mapper, ctxHelper map[string]func(interface{}) interface
 
 		_pages := make([]Mapper, 0)
 		for _, id := range ids {
-			_pages = append(_pages, pages[id.(string)])
+			p := pages[id.(string)]
+			p["is_active_page"] = current_page_id == p["id"]
+			_pages = append(_pages, p)
 		}
 		return _pages
 	}
