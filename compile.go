@@ -14,8 +14,6 @@ import (
 	"strings"
 )
 
-var current_page_id string
-
 func Compile() error {
 	var payload Mapper
 	var ctx mustache.Context
@@ -53,8 +51,8 @@ func Compile() error {
 	helpers := make(map[string]mustache.SectionRenderFunc)
 	ctxHelpers := make(map[string]func(interface{}) interface{})
 
-	dynamicCtx := make(Mapper)
-	topCtx := mustache.MakeContexts(payload_ctx, helpers, ctxHelpers, map[string]Mapper{"dynamic": dynamicCtx})
+	dynamicMapper := make(Mapper)
+	topCtx := mustache.MakeContexts(payload_ctx, helpers, ctxHelpers, dynamicMapper)
 
 	widgets, widget_assets, err := LoadWidgets(topCtx)
 	if err != nil {
@@ -77,13 +75,12 @@ func Compile() error {
 	pages := payload["db"].(map[string]interface{})["pages"].(map[string]Mapper)
 	for id, page := range pages {
 		docCont = page["_content"].(*DocContent)
-		top := make(map[string]interface{})
-		top["current_page_id"] = id
-		current_page_id = id
-		top["page"] = page
-		top["assets"] = PrapareAssets(themeName, page.Layout(), topCtx) + widget_assets
+		//top := make(map[string]interface{})
+		dynamicMapper["current_page_id"] = id
+		dynamicMapper["page"] = page
+		dynamicMapper["assets"] = PrapareAssets(themeName, page.Layout(), topCtx) + widget_assets
 		widgetCtx := PrapareWidgets(widgets, page, topCtx)
-		ctx = mustache.MakeContexts(page, top, topCtx, widgetCtx)
+		ctx = mustache.MakeContexts(page, dynamicMapper, topCtx, widgetCtx)
 		//log.Println(">>", ctx.Dir(), topCtx.Dir())
 		_tmp, err := PrapreMainContent(id, docCont.Source, ctx)
 		if err != nil {
@@ -100,14 +97,14 @@ func Compile() error {
 
 	// Render Posts
 	for id, post := range db_posts_dict.Val.Interface().(map[string]Mapper) {
-		top := make(map[string]interface{})
-		top["current_page_id"] = id
-		top["page"] = post
-		top["assets"] = PrapareAssets(themeName, post.Layout(), topCtx) + widget_assets
+		//top := make(map[string]interface{})
+		dynamicMapper["current_page_id"] = id
+		dynamicMapper["page"] = post
+		dynamicMapper["assets"] = PrapareAssets(themeName, post.Layout(), topCtx) + widget_assets
 		docCont = post["_content"].(*DocContent)
 		widgetCtx := PrapareWidgets(widgets, post, topCtx)
-		ctx = mustache.MakeContexts(post, top, topCtx, widgetCtx)
-		current_page_id = id
+		ctx = mustache.MakeContexts(post, dynamicMapper, topCtx, widgetCtx)
+
 		str, err = RenderInLayout(docCont.Main, post.Layout(), layouts, ctx)
 		if err != nil {
 			return errors.New(id + ">" + err.Error())
@@ -186,9 +183,10 @@ func BaiscHelpers(payload Mapper, helpers map[string]mustache.SectionRenderFunc,
 		if inverted {
 			return nil
 		}
+
+		current_page_id := FromCtx(ctx, "current_page_id")
 		for id, page := range pages {
 			top := map[string]interface{}{}
-			current_page_id := FromCtx(ctx, "current_page_id")
 			if current_page_id != nil {
 				top["is_active_page"] = id == current_page_id.(string)
 			}
@@ -267,6 +265,12 @@ func CtxHelpers(payload Mapper, ctxHelper map[string]func(interface{}) interface
 	}
 
 	ctxHelper["to_pages"] = func(in interface{}) interface{} {
+
+		//current_page
+		current_page_id := FromCtx(topCtx, "current_page_id")
+		//log.Println("current_page_id", current_page_id)
+
+		//log.Println(in)
 		ids, ok := in.([]interface{})
 		if !ok {
 			log.Println("Not String Array?")
@@ -276,7 +280,10 @@ func CtxHelpers(payload Mapper, ctxHelper map[string]func(interface{}) interface
 		_pages := make([]Mapper, 0)
 		for _, id := range ids {
 			p := pages[id.(string)]
-			p["is_active_page"] = current_page_id == p["id"]
+			if current_page_id != nil {
+				p["is_active_page"] = id == current_page_id.(string)
+				//log.Println("is_active_page", id == current_page_id.(string))
+			}
 			_pages = append(_pages, p)
 		}
 		return _pages
@@ -381,9 +388,6 @@ func WriteTo(url string, content string) {
 	} else if !strings.HasSuffix(url, ".html") {
 		url = url + "/index.html"
 	}
-
-	url = filepath.Dir(url) + "/" + DecodePathInfo(filepath.Base(url))
-
 	dstPath := "compiled" + url
 	os.MkdirAll(filepath.Dir(dstPath), os.ModePerm)
 	ioutil.WriteFile(dstPath, []byte(content), os.ModePerm)

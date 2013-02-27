@@ -47,6 +47,8 @@ const (
   prettyPrint();
 </script>
 `
+
+	tpl_cnzz = `<script src="http://s25.cnzz.com/stat.php?id=%d&web_id=%d" language="JavaScript"></script>`
 )
 
 type WidgetBuilder func(Mapper, mustache.Context) (Widget, error)
@@ -125,17 +127,29 @@ func (self AnalyticsWidget) Prepare(mapper Mapper, topCtx mustache.Context) Mapp
 }
 
 func BuildAnalyticsWidget(cnf Mapper, topCtx mustache.Context) (Widget, error) {
-	if cnf.Layout() != "google" {
-		return nil, errors.New("AnalyticsWidget Only for Goolge yet")
+	switch cnf.Layout() {
+	case "google":
+		google := cnf[cnf.Layout()].(map[string]interface{})
+		tracking_id := google["tracking_id"]
+		if tracking_id == nil {
+			return nil, errors.New("AnalyticsWidget Of Google need tracking_id")
+		}
+		self := make(AnalyticsWidget)
+		self["analytics"] = fmt.Sprintf(Analytics_google, tracking_id)
+		return self, nil
+	case "cnzz":
+		cnzz := cnf[cnf.Layout()].(map[string]interface{})
+		tracking_id := cnzz["tracking_id"]
+		if tracking_id == nil {
+			return nil, errors.New("AnalyticsWidget Of CNZZ need tracking_id")
+		}
+		self := make(AnalyticsWidget)
+		self["analytics"] = fmt.Sprintf(tpl_cnzz, tracking_id, tracking_id)
+		return self, nil
 	}
-	google := cnf[cnf.Layout()].(map[string]interface{})
-	tracking_id := google["tracking_id"]
-	if tracking_id == nil {
-		return nil, errors.New("AnalyticsWidget Of Google need tracking_id")
-	}
-	self := make(AnalyticsWidget)
-	self["analytics"] = fmt.Sprintf(Analytics_google, tracking_id)
-	return self, nil
+
+	return nil, errors.New("AnalyticsWidget Only for Goolge yet")
+
 }
 
 //--------------------------------------------------------------------------------
