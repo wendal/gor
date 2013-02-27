@@ -388,6 +388,9 @@ func WriteTo(url string, content string) {
 	} else if !strings.HasSuffix(url, ".html") {
 		url = url + "/index.html"
 	}
+
+	url = filepath.Dir(url) + "/" + DecodePathInfo(filepath.Base(url))
+
 	dstPath := "compiled" + url
 	os.MkdirAll(filepath.Dir(dstPath), os.ModePerm)
 	ioutil.WriteFile(dstPath, []byte(content), os.ModePerm)

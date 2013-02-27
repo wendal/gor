@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	URL "net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -468,6 +469,18 @@ func AsStrings(v interface{}) (strs []string) {
 	return
 }
 
+func EncodePathInfo(pathinfo string) string {
+	return strings.Replace(URL.QueryEscape(pathinfo), "+", "%20", -1)
+}
+
+func DecodePathInfo(pathinfo string) string {
+	pathinfo2, err := URL.QueryUnescape(pathinfo)
+	if err != nil {
+		return pathinfo
+	}
+	return pathinfo2
+}
+
 func CreatePostURL(db map[string]interface{}, basePath string, post map[string]interface{}) {
 	url := post["permalink"].(string)
 	if strings.Contains(url, ":") {
@@ -475,8 +488,10 @@ func CreatePostURL(db map[string]interface{}, basePath string, post map[string]i
 		url = strings.Replace(url, ":year", fmt.Sprintf("%v", year), -1)
 		url = strings.Replace(url, ":month", fmt.Sprintf("%02d", month), -1)
 		url = strings.Replace(url, ":day", fmt.Sprintf("%02d", day), -1)
-		url = strings.Replace(url, ":title", fmt.Sprintf("%v", post["title"]), -1)
-		url = strings.Replace(url, ":filename", filepath.Base(post["id"].(string)), -1)
+		url = strings.Replace(url, ":title", EncodePathInfo(fmt.Sprintf("%v", post["title"])), -1)
+		filename := filepath.Base(post["id"].(string))
+		ext := filepath.Ext(filename)
+		url = strings.Replace(url, ":filename", EncodePathInfo(filename[0:len(filename)-len(ext)]), -1)
 		if len(post["categories"].([]string)) > 0 {
 			url = strings.Replace(url, ":categories", post["categories"].([]string)[0], -1)
 		} else {
