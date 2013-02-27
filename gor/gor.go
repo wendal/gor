@@ -13,7 +13,11 @@ import (
 )
 
 const (
-	VER = "2.1"
+	VER = "2.3"
+)
+
+var (
+	http_addr = flag.String("http", ":8080", "Http addr for Preview or Server")
 )
 
 func init() {
@@ -71,8 +75,8 @@ func main() {
 		}
 		gor.CreateNewPost(args[1])
 	case "http":
-		log.Println("Listen at 0.0.0.0:8080")
-		http.ListenAndServe(":8080", http.FileServer(http.Dir("compiled")))
+		log.Println("Listen at ", *http_addr)
+		log.Println(http.ListenAndServe(*http_addr, http.FileServer(http.Dir("compiled"))))
 	case "pprof":
 		f, _ := os.OpenFile("gor.pprof", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 		defer f.Close()
