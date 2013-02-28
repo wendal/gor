@@ -1,5 +1,0 @@
-package gor
-
-func NewPage() {
-
-}
