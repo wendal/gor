@@ -5,9 +5,10 @@ import (
 	"log"
 )
 
+// 列出全部post -- 纯属无聊?
 func ListPosts() {
 	var payload Mapper
-	payload, err := BuildPlayload()
+	payload, err := BuildPlayload("./")
 	if err != nil {
 		log.Fatal(err)
 	}

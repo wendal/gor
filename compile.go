@@ -14,18 +14,18 @@ import (
 	"strings"
 )
 
+// 编译整个网站
 func Compile() error {
-	var payload Mapper
-	var ctx mustache.Context
-	var docCont *DocContent
-	//var tpl *mustache.Template
-	var str string
-	var err error
-	//var mdParser *markdown.Parser
-	//var buf *bytes.Buffer
+	var ctx mustache.Context // 渲染上下文
+	var docCont *DocContent  // 文档内容,仅作为变量声明
+	var str string           // 仅声明,以减少不一样的编译错误
+	var err error            // 仅声明
+
 	var layouts map[string]Mapper
-	payload, err = BuildPlayload()
+
+	payload, err := BuildPlayload("./") // payload,核心上下文的主要部分,不可变
 	if err != nil {
+		log.Println("Build PayLoad FAIL!!")
 		return err
 	}
 

@@ -18,41 +18,61 @@ import (
 	"time"
 )
 
-func BuildPlayload() (payload map[string]interface{}, err error) {
-	//defer runtime.GC()
+// 构建PayLoad
+func BuildPlayload(root string) (payload map[string]interface{}, err error) {
+	//检查处理的根路径
+	if root == "" {
+		root = "."
+	}
+	root, err = filepath.Abs(root)
+	root += "/"
+	log.Println("root=", root)
+
+	// 开始读取配置
 	payload = make(Mapper)
 	err = nil
+	var cnf Mapper
+	var site Mapper
 
 	//-----------------------------------
-	cnf, err := ReadYml("config.yml")
+	cnf, err = ReadYml(root + CONFIG_YAML)
 	if err != nil {
+		log.Println("Fail to read ", root+CONFIG_YAML, err)
 		return
 	}
-	site, err := ReadYml("./site.yml")
+	site, err = ReadYml(root + SITE_YAML)
 	if err != nil {
+		log.Println("Fail to read ", root+SITE_YAML, err)
 		return
 	}
+
 	site["config"] = cnf
 	payload["site"] = site
+	payload["data"] = site // for v2
 
 	// Check site config!
-	if cnf["theme"] == nil {
+	themeName := cnf.String("theme")
+	if themeName == "" { //必须有theme的设置
 		err = errors.New("Miss theme config!")
 		return
 	}
+	cnf["theme"] = themeName // 保证是string
 
-	payload["layouts"] = LoadLayouts(cnf["theme"].(string))
+	payload["layouts"] = LoadLayouts(themeName)
 
-	production_url := cnf["production_url"]
-	if production_url == nil {
+	production_url := cnf.String("production_url")
+	if production_url == "" {
 		err = errors.New("Miss production_url")
 		return
 	}
-	rootUrl := production_url.(string)
-	if !strings.HasPrefix(rootUrl, "http://") && !strings.HasPrefix(rootUrl, "https://") {
+	if !strings.HasPrefix(production_url, "http://") && !strings.HasPrefix(production_url, "https://") {
 		err = errors.New("production_url must start with https:// or http://")
 		return
 	}
+	cnf["production_url"] = production_url
+
+	// 域名保证是http/https开头,故,以下的除了,可以按https
+	rootUrl := production_url
 	pos := strings.Index(rootUrl[len("https://"):], "/")
 	basePath := ""
 	if pos == -1 {
@@ -64,26 +84,37 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 		}
 	}
 
+	// 读取theme的配置
 	//---------------------------------
-	themeCnf, err := ReadYml("./themes/" + cnf["theme"].(string) + "/theme.yml")
+	themeCnf, err := ReadYml(fmt.Sprintf("%s/themes/%s/theme.yml", root, themeName))
 	if err != nil {
+		log.Println("No such theme ?", themeName, err)
 		return
 	}
 	payload["theme"] = themeCnf
 
+	// 设置基础URL
 	//-------------------------------
 	urls := make(map[string]string)
 	urls["media"] = basePath + "assets/media"
-	urls["theme"] = basePath + "assets/" + cnf["theme"].(string)
+	urls["theme"] = basePath + "assets/" + themeName
 	urls["theme_media"] = urls["theme"] + "/media"
 	urls["theme_javascripts"] = urls["theme"] + "/javascripts"
 	urls["theme_stylesheets"] = urls["theme"] + "/stylesheets"
 	urls["base_path"] = basePath
 
+	if site["urls"] != nil { //允许用户自定义基础URL,实现CDN等功能
+		var site_url Mapper
+		site_url = site["urls"].(map[string]interface{})
+		for k, v := range site_url {
+			urls[k] = v.(string)
+		}
+	}
+
 	payload["urls"] = urls
 
 	//---------------------------------
-	// set default configs
+	// 检查非必填,但必须存在的配置信息, 如果没有就自动补齐
 	var cnf_posts Mapper
 	if cnf["posts"] == nil {
 		cnf_posts = make(map[string]interface{})
@@ -131,17 +162,19 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 	post_permalink_default := cnf_posts.Permalink()
 	page_permalink_default := cnf_pages.Permalink()
 
+	// 为Page和Post补齐layout和permalink
 	//---------------------------------
 
 	db := make(map[string]interface{})
 	payload["db"] = db
 
-	pages, err := LoadPages(cnf_pages.GetString("exclude"))
+	pages, err := LoadPages(root, cnf_pages.String("exclude"))
 	if err != nil {
 		return
 	}
 	db["pages"] = pages
 
+	// 构建导航信息(page列表)
 	navigation := make([]string, 0)
 
 	for page_id, page := range pages {
@@ -152,7 +185,6 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 			page["permalink"] = page_permalink_default
 		}
 
-		//TODO create page URL
 		page_url := ""
 		switch {
 		case strings.HasSuffix(page_id, "index.html"):
@@ -181,7 +213,7 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 		db["navigation"] = AsStrings(site["navigation"])
 	}
 
-	dictionary, err := LoadPosts(cnf_posts["exclude"].(string))
+	dictionary, err := LoadPosts(root, cnf_posts["exclude"].(string))
 	if err != nil {
 		return
 	}
@@ -190,6 +222,7 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 	db["posts"] = posts
 
 	// for tags, and catalog
+	// 配置Tag和catalog
 	tags := make(map[string]*Tag)
 	catalogs := make(map[string]*Catalog)
 	chronological := make([]string, 0)
@@ -207,14 +240,10 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 			post["permalink"] = post_permalink_default
 		}
 
-		//if post["theme"] == nil {
-		//	post["theme"] = cnf["theme"].(string)
-		//}
-
 		for _, _tag := range post.Tags() {
 			tag := tags[_tag]
 			if tag == nil {
-				tag = &Tag{0, _tag, make([]string, 0), "/tags#" + _tag + "-ref"}
+				tag = &Tag{0, _tag, make([]string, 0), "/tags#" + EncodePathInfo(_tag) + "-ref"}
 				tags[_tag] = tag
 			}
 			tag.Count += 1
@@ -224,7 +253,7 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 		for _, _catalog := range post.Categories() {
 			catalog := catalogs[_catalog]
 			if catalog == nil {
-				catalog = &Catalog{0, _catalog, make([]string, 0), "/categories#" + _catalog + "-ref"}
+				catalog = &Catalog{0, _catalog, make([]string, 0), "/categories#" + EncodePathInfo(_catalog) + "-ref"}
 				catalogs[_catalog] = catalog
 			}
 			catalog.Count += 1
@@ -251,6 +280,7 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 		CreatePostURL(db, basePath, post)
 	}
 
+	// 还得按时间分类
 	for _, _yearc := range _collated {
 		monthArray := make(CollatedMonths, 0)
 		for _, _monthc := range _yearc.months {
@@ -276,10 +306,11 @@ func BuildPlayload() (payload map[string]interface{}, err error) {
 	posts["chronological"] = SortPosts(dictionary, chronological)
 	posts["collated"] = collated
 
-	return
+	return // ~_~ 哦也,搞定收工
 }
 
-func LoadPages(exclude string) (pages map[string]Mapper, err error) {
+// 载入所有Page
+func LoadPages(root string, exclude string) (pages map[string]Mapper, err error) {
 	pages = make(map[string]Mapper)
 	err = nil
 	var _exclude *regexp.Regexp
@@ -290,17 +321,17 @@ func LoadPages(exclude string) (pages map[string]Mapper, err error) {
 			return
 		}
 	}
-	err = filepath.Walk("pages/", func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(root+"pages/", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 		if info.IsDir() || strings.HasPrefix(filepath.Base(path), ".") {
 			return nil
 		}
-		if _exclude != nil && _exclude.Match([]byte(path[len("pages/"):])) {
+		if _exclude != nil && _exclude.Match([]byte(path[len(root+"pages/"):])) {
 			return nil
 		}
-		page, err := LoadPage(path)
+		page, err := LoadPage(root, path)
 		if err != nil {
 			return err
 		}
@@ -310,16 +341,18 @@ func LoadPages(exclude string) (pages map[string]Mapper, err error) {
 	return
 }
 
-func LoadPage(path string) (ctx Mapper, err error) {
+// 载入特定的一个Page文件
+func LoadPage(root string, path string) (ctx Mapper, err error) {
 	ctx, err = ReadMuPage(path)
 	if err != nil {
 		return
 	}
-	ctx["id"] = path[len("pages/"):]
+	ctx["id"] = path[len(root+"pages/"):]
 	return
 }
 
-func LoadPosts(exclude string) (posts map[string]Mapper, err error) {
+// 载入所有的Post
+func LoadPosts(root string, exclude string) (posts map[string]Mapper, err error) {
 	posts = make(map[string]Mapper)
 	err = nil
 	var _exclude *regexp.Regexp
@@ -330,17 +363,17 @@ func LoadPosts(exclude string) (posts map[string]Mapper, err error) {
 			return
 		}
 	}
-	err = filepath.Walk("posts/", func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(root+"posts/", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 		if info.IsDir() || strings.HasPrefix(filepath.Base(path), ".") {
 			return nil
 		}
-		if _exclude != nil && _exclude.Match([]byte(path[len("posts/"):])) {
+		if _exclude != nil && _exclude.Match([]byte(path[len(root+"posts/"):])) {
 			return nil
 		}
-		post, err := LoadPost(path)
+		post, err := LoadPost(root, path)
 		if err != nil {
 			return err
 		}
@@ -350,13 +383,18 @@ func LoadPosts(exclude string) (posts map[string]Mapper, err error) {
 	return
 }
 
-func LoadPost(path string) (ctx Mapper, err error) {
+// 载入特定的Post
+func LoadPost(root string, path string) (ctx Mapper, err error) {
 	ctx, err = ReadMuPage(path)
 	if err != nil {
 		return
 	}
 	if ctx["date"] == nil {
-		err = errors.New("Miss date! >> " + path + " " + err.Error())
+		err = errors.New("Miss date! >> " + path)
+		return
+	}
+	if ctx["title"] == "" {
+		err = errors.New("Miss title! >> " + path)
 		return
 	}
 	var date time.Time
@@ -371,7 +409,7 @@ func LoadPost(path string) (ctx Mapper, err error) {
 		err = nil
 	}
 
-	ctx["id"] = path
+	ctx["id"] = path[len(root):]
 	ctx["_date"] = date
 
 	ctx["categories"] = ctx.Categories()
@@ -383,6 +421,7 @@ func LoadPost(path string) (ctx Mapper, err error) {
 	return
 }
 
+// 读取包含元数据的文件,返回ctx(包含文本)
 func ReadMuPage(path string) (ctx map[string]interface{}, err error) {
 	//log.Println("Read", path)
 	err = nil
@@ -469,10 +508,12 @@ func AsStrings(v interface{}) (strs []string) {
 	return
 }
 
+// 转为URL友好的路径
 func EncodePathInfo(pathinfo string) string {
 	return strings.Replace(URL.QueryEscape(pathinfo), "+", "%20", -1)
 }
 
+// 解码URL编码的路径信息
 func DecodePathInfo(pathinfo string) string {
 	pathinfo2, err := URL.QueryUnescape(pathinfo)
 	if err != nil {
@@ -481,6 +522,7 @@ func DecodePathInfo(pathinfo string) string {
 	return pathinfo2
 }
 
+// 创建permalink的配置生产路径(不限于Post)
 func CreatePostURL(db map[string]interface{}, basePath string, post map[string]interface{}) {
 	url := post["permalink"].(string)
 	if strings.Contains(url, ":") {

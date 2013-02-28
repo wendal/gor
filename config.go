@@ -3,7 +3,6 @@ package gor
 import (
 	"bytes"
 	"encoding/json"
-	//"github.com/wendal/goyaml"
 	"github.com/wendal/goyaml2"
 	"io"
 	"io/ioutil"
@@ -11,22 +10,18 @@ import (
 	"os"
 )
 
+// 读取配置文件()
 func ReadConfig(root string) (cnf map[string]interface{}, err error) {
 	cnf, err = ReadYmlCnf(root)
-	if err != nil {
-		cnf, err = ReadJsonCnf(root)
-	}
 	return
 }
 
+// 读取YAML格式的配置文件(兼容JSON)
 func ReadYmlCnf(root string) (map[string]interface{}, error) {
-	return ReadYml(root + "/config.yml")
+	return ReadYml(root + "/" + CONFIG_YAML)
 }
 
-func ReadJsonCnf(root string) (cnf map[string]interface{}, err error) {
-	return ReadJson(root + "/config.json")
-}
-
+// 从文件读取YAML
 func ReadYml(path string) (cnf map[string]interface{}, err error) {
 	err = nil
 	f, err := os.Open(path)
@@ -38,16 +33,7 @@ func ReadYml(path string) (cnf map[string]interface{}, err error) {
 	return
 }
 
-func ReadJson(path string) (cnf map[string]interface{}, err error) {
-	err = nil
-	buf, err := ioutil.ReadFile(path)
-	if err != nil {
-		return
-	}
-	err = json.Unmarshal(buf, &cnf)
-	return
-}
-
+// 从Reader读取YAML
 func ReadYmlReader(r io.Reader) (cnf map[string]interface{}, err error) {
 
 	err = nil
@@ -55,7 +41,6 @@ func ReadYmlReader(r io.Reader) (cnf map[string]interface{}, err error) {
 	if err != nil || len(buf) < 3 {
 		return
 	}
-	//err = goyaml.Unmarshal(buf, &cnf)
 
 	if string(buf[0:1]) == "{" {
 		log.Println("Look lile a Json, try it")

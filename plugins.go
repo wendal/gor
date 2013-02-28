@@ -9,20 +9,23 @@ import (
 	"time"
 )
 
+// 全局插件列表
 var Plugins []Plugin
 
 func init() {
+	// 载入默认的插件
 	Plugins = make([]Plugin, 2)
 	Plugins[0] = &RssPlugin{}
 	Plugins[1] = &SitemapPlugin{}
 }
 
+// 插件本身应该是线程安全的
 type Plugin interface {
 	Exec(mustache.Context)
 }
 
 //--------------------------------------------------------
-
+// RSS 全文输出, 当前仅支持全部输出
 type RssPlugin struct{}
 
 type Rss struct {
@@ -68,6 +71,7 @@ func (*RssPlugin) Exec(topCtx mustache.Context) {
 		log.Println("ERR When Create RSS", err)
 		return
 	}
+	// FUCK!! 官方的xml库极其弱智,无法为struct指定名字
 	f.WriteString(`<?xml version="1.0"?>` + "\n" + `<rss version="2.0">`)
 	str := string(data)
 	f.Write([]byte(str[len(`<rss version="2.0">`)+1 : len(str)-len("</rss>")]))
@@ -75,6 +79,9 @@ func (*RssPlugin) Exec(topCtx mustache.Context) {
 	f.Sync()
 	return
 }
+
+//----------------------------------------------------------------------------------------------------
+// 生成sitemap, 可以说已经完整实现
 
 type SitemapPlugin struct{}
 
@@ -86,6 +93,8 @@ func (SitemapPlugin) Exec(topCtx mustache.Context) {
 	}
 	defer f.Close()
 
+	//自行拼接XML比官方的xml包还靠谱
+
 	f.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
 	f.WriteString("\n")
 	f.WriteString(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`)
@@ -95,7 +104,7 @@ func (SitemapPlugin) Exec(topCtx mustache.Context) {
 
 	f.WriteString("\t<url>\n")
 	f.WriteString("\t\t<loc>")
-	xml.Escape(f, []byte(production_url+"/"))
+	xml.Escape(f, []byte(production_url+"/")) //够弱智不? 竟然要传入一个io.Reader
 	f.WriteString("</loc>\n")
 	f.WriteString("\t</url>\n")
 
@@ -108,11 +117,12 @@ func (SitemapPlugin) Exec(topCtx mustache.Context) {
 		xml.Escape(f, []byte(production_url))
 		xml.Escape(f, []byte(post.Url()))
 		f.WriteString("</loc>\n")
-		f.WriteString(fmt.Sprintf("\t\t<lastmod>%s</lastmod>\n", post["date"]))
+		f.WriteString(fmt.Sprintf("\t\t<lastmod>%s</lastmod>\n", post["date"])) // 是否应该抹除呢? 考虑中
 		f.WriteString("\t\t<changefreq>weekly</changefreq>\n")
 		f.WriteString("\t</url>\n")
 	}
 
 	f.WriteString(`</urlset>`)
 	f.Sync()
+	// ~_~ 大功告成!
 }

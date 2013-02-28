@@ -7,6 +7,9 @@ import (
 	"time"
 )
 
+// 最重要的封装类之一
+// Golang是强静态语言,无法动态添加/删除属性, 而元数据(map[string]interface{})允许包含用户自定义的key
+// 所以只能使用Mapper这类封装部分常用Getter
 type Mapper map[string]interface{}
 
 func (m Mapper) Get(key string) interface{} {
@@ -22,6 +25,26 @@ func (m Mapper) GetString(key string) string {
 		return str
 	}
 	return fmt.Sprintf("%v", val)
+}
+
+func (m *Mapper) String(key string) string {
+	return m.GetString(key)
+}
+
+// goyaml2获取string的机制决定了string肯定trim了的. 但依赖这个特性,靠谱不?
+/*
+func (m *Mapper) StringTrim(key string) string {
+	str := m.GetString(key)
+	return strings.Trim(str, " \t\n\r")
+}
+*/
+
+func (m *Mapper) Int64(key string) int64 {
+	return m.GetInt(key)
+}
+
+func (m *Mapper) Int(key string) int {
+	return int(m.GetInt(key))
 }
 
 func (m Mapper) GetInt(key string) int64 {
@@ -64,6 +87,7 @@ func (m Mapper) Categories() []string {
 	return m.GetStrings("categories")
 }
 
+// 由于是类型不可预知,所以需要自行封装为[]string
 func (m Mapper) GetStrings(key string) (strs []string) {
 	v := m[key]
 	strs = make([]string, 0)

@@ -20,8 +20,10 @@ categories:
 `
 )
 
+// 创建一个新post
+// TODO 移到到其他地方?
 func CreateNewPost(title string) {
-	if !IsGorDir() {
+	if !IsGorDir(".") {
 		log.Fatal("Not Gor Dir, need config.yml")
 	}
 	path := "posts/" + strings.Replace(title, " ", "-", -1) + ".md"

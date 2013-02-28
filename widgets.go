@@ -11,6 +11,7 @@ import (
 )
 
 var (
+	// 默认的挂件
 	WidgetBuilders = make(map[string]WidgetBuilder)
 )
 
@@ -58,11 +59,12 @@ type Widget interface {
 }
 
 func init() {
-	WidgetBuilders["analytics"] = BuildAnalyticsWidget
-	WidgetBuilders["comments"] = BuildCommentsWidget
-	WidgetBuilders["google_prettify"] = BuildGoogle_prettify
+	WidgetBuilders["analytics"] = BuildAnalyticsWidget       //访问统计
+	WidgetBuilders["comments"] = BuildCommentsWidget         //社会化评论
+	WidgetBuilders["google_prettify"] = BuildGoogle_prettify // 代码高亮
 }
 
+// 遍历目录,加载挂件
 func LoadWidgets(topCtx mustache.Context) ([]Widget, string, error) {
 	widgets := make([]Widget, 0)
 	assets := ""
@@ -90,7 +92,7 @@ func LoadWidgets(topCtx mustache.Context) ([]Widget, string, error) {
 			}
 		}
 		builderFunc := WidgetBuilders[info.Name()]
-		if builderFunc == nil {
+		if builderFunc == nil { // 看看是否符合自定义挂件的格式
 			_widget, _assets, _err := BuildCustomWidget(info.Name(), path, cnf)
 			if _err != nil {
 				log.Println("NO WidgetBuilder >>", cnf_path, _err)
@@ -128,7 +130,7 @@ func (self AnalyticsWidget) Prepare(mapper Mapper, topCtx mustache.Context) Mapp
 
 func BuildAnalyticsWidget(cnf Mapper, topCtx mustache.Context) (Widget, error) {
 	switch cnf.Layout() {
-	case "google":
+	case "google": // 鼎鼎大名的免费,但有点拖慢加载速度,原因你懂的
 		google := cnf[cnf.Layout()].(map[string]interface{})
 		tracking_id := google["tracking_id"]
 		if tracking_id == nil {
@@ -137,7 +139,7 @@ func BuildAnalyticsWidget(cnf Mapper, topCtx mustache.Context) (Widget, error) {
 		self := make(AnalyticsWidget)
 		self["analytics"] = fmt.Sprintf(Analytics_google, tracking_id)
 		return self, nil
-	case "cnzz":
+	case "cnzz": //免费,而且很快,但强制嵌入一个反向链接,靠!
 		cnzz := cnf[cnf.Layout()].(map[string]interface{})
 		tracking_id := cnzz["tracking_id"]
 		if tracking_id == nil {
@@ -147,13 +149,13 @@ func BuildAnalyticsWidget(cnf Mapper, topCtx mustache.Context) (Widget, error) {
 		self["analytics"] = fmt.Sprintf(tpl_cnzz, tracking_id, tracking_id)
 		return self, nil
 	}
-
-	return nil, errors.New("AnalyticsWidget Only for Goolge yet")
+	// 其他的尚不支持, 如果需要,请报个issue吧
+	return nil, errors.New("AnalyticsWidget Only for Goolge/CNZZ yet")
 
 }
 
 //--------------------------------------------------------------------------------
-
+// 社会化屏幕
 type CommentsWidget Mapper
 
 func (self CommentsWidget) Prepare(mapper Mapper, topCtx mustache.Context) Mapper {
@@ -165,20 +167,23 @@ func (self CommentsWidget) Prepare(mapper Mapper, topCtx mustache.Context) Mappe
 }
 
 func BuildCommentsWidget(cnf Mapper, topCtx mustache.Context) (Widget, error) {
-	if cnf.Layout() != "disqus" {
-		return nil, errors.New("CommentsWidget Only for disqus yet")
+	switch cnf.Layout() {
+	case "disqus":
+		disqus := cnf[cnf.Layout()].(map[string]interface{})
+		short_name := disqus["short_name"]
+		if short_name == nil {
+			return nil, errors.New("CommentsWidget Of disqus need short_name")
+		}
+		self := make(CommentsWidget)
+		self["comments"] = fmt.Sprintf(Comments_disqus, short_name)
+		return self, nil
 	}
-	disqus := cnf[cnf.Layout()].(map[string]interface{})
-	short_name := disqus["short_name"]
-	if short_name == nil {
-		return nil, errors.New("CommentsWidget Of disqus need short_name")
-	}
-	self := make(CommentsWidget)
-	self["comments"] = fmt.Sprintf(Comments_disqus, short_name)
-	return self, nil
+	// 其他的,想不到还有啥,哈哈,需要其他的就报个issue吧
+	return nil, errors.New("CommentsWidget Only for disqus yet")
 }
 
 //-----------------------------------------------
+// 代码高亮
 type google_prettify Mapper
 
 func (self google_prettify) Prepare(mapper Mapper, topCtx mustache.Context) Mapper {
@@ -189,7 +194,7 @@ func (self google_prettify) Prepare(mapper Mapper, topCtx mustache.Context) Mapp
 }
 
 func BuildGoogle_prettify(cnf Mapper, topCtx mustache.Context) (Widget, error) {
-	if cnf["linenums"].(bool) {
+	if enable, ok := cnf["linenums"].(bool); ok { //是否显示行号
 		self := make(google_prettify)
 		self["google_prettify"] = fmt.Sprintf(tpl_google_prettify, "linenums")
 		return self, nil
