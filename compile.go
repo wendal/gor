@@ -113,6 +113,19 @@ func Compile() error {
 		WriteTo(post.Url(), str)
 	}
 
+	//我们还得把分页给解决了哦
+	if paginatorCnf := FromCtx(topCtx, "site.config.paginator"); paginatorCnf != nil {
+		log.Println("paginator is enable")
+		var pgCnf Mapper
+		pgCnf = paginatorCnf.(map[string]interface{})
+		if _, ok := layouts[pgCnf.String("layout")]; ok {
+			log.Println("Enable paginator")
+			renderPaginator(pgCnf, layouts, topCtx)
+		} else {
+			log.Println("Layout Not Found", pgCnf.String("layout"))
+		}
+	}
+
 	if Plugins != nil {
 		for _, plugin := range Plugins {
 			plugin.Exec(topCtx)
@@ -549,4 +562,93 @@ func MakeSummary(post Mapper, lines int, topCtx mustache.Context) string {
 		}
 	}
 	return MarkdownToHtml(str)
+}
+
+func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Context) {
+	PrintJson(pgCnf)
+	summary_lines := int(FromCtx(topCtx, "site.config.posts.summary_lines").(int64))
+	pre_page := pgCnf.Int("per_page")
+	if pre_page < 2 {
+		pre_page = 2
+	} else if pre_page > 100 {
+		pre_page = 100
+	}
+	namespace := pgCnf.String("namespace")
+	if namespace == "" {
+		namespace = "/posts/"
+	}
+	layout := pgCnf.String("layout")
+
+	posts_ctx := make(Mapper)
+
+	chronological, _ := FromCtx(topCtx, "db.posts.chronological").([]string)
+	dictionary, _ := FromCtx(topCtx, "db.posts.dictionary").(map[string]Mapper)
+
+	page_count := (len(chronological) / pre_page) + 1
+
+	log.Println(pre_page, namespace, layout, page_count)
+	paginator_navigation := make([]Mapper, page_count)
+	for i := 0; i < len(paginator_navigation); i++ {
+		//log.Println("page number =", i+1)
+		pn := make(Mapper)
+		pn["page_number"] = i + 1
+		pn["name"] = fmt.Sprintf("%d", i+1)
+		pn["url"] = fmt.Sprintf("%s%d/", namespace, i+1)
+		pn["is_active_page"] = func(nodes []mustache.Node, isInverted bool, _ctx mustache.Context, w io.Writer) error {
+			curPageNum := FromCtx(_ctx, "posts.current_page_number")
+			if curPageNum != nil && curPageNum.(int) == (i+1) && !isInverted {
+				for _, node := range nodes {
+					err := node.Render(mustache.MakeContexts(_ctx), w)
+					if err != nil {
+						return err
+					}
+				}
+			}
+
+			if isInverted {
+				for _, node := range nodes {
+					err := node.Render(mustache.MakeContexts(_ctx), w)
+					if err != nil {
+						return err
+					}
+				}
+			}
+			return nil
+		}
+		paginator_navigation[i] = pn
+	}
+
+	posts_ctx["paginator_navigation"] = paginator_navigation
+
+	one_page := make([]Mapper, 0)
+	current_page_number := 0
+	for i, post_id := range chronological {
+		current_page_number = (i / pre_page) + 1
+		if (i+1)%pre_page == 0 {
+			posts_ctx["current_page_number"] = current_page_number
+			posts_ctx["paginator"] = one_page
+			renderOnePager(paginator_navigation[current_page_number-1].String("url"), layout, layouts, mustache.MakeContexts(map[string]interface{}{"posts": posts_ctx, "page": map[string]interface{}{}}, topCtx))
+			one_page = one_page[0:0]
+		}
+		post := dictionary[post_id]
+		post["summary"] = MakeSummary(post, summary_lines, topCtx)
+		one_page = append(one_page, post)
+	}
+	if len(one_page) > 0 {
+		posts_ctx["page_number"] = current_page_number
+		posts_ctx["paginator"] = one_page
+		renderOnePager(paginator_navigation[current_page_number-1].String("url"), layout, layouts, mustache.MakeContexts(map[string]interface{}{"posts": posts_ctx, "page": map[string]interface{}{}}, topCtx))
+	}
+}
+
+func renderOnePager(url string, layoutName string, layouts map[string]Mapper, ctx mustache.Context) {
+	str, err := RenderInLayout("", layoutName, layouts, ctx)
+	if err != nil {
+		log.Println("ERR: Pager ", url, err)
+		return
+	}
+	if strings.HasSuffix(url, "/") {
+		url += "/index.html"
+	}
+	WriteTo(url, str)
 }

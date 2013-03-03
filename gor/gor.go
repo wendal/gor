@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	VER = "2.3"
+	VER = "2.4"
 )
 
 var (

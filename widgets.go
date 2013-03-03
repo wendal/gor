@@ -194,7 +194,7 @@ func (self google_prettify) Prepare(mapper Mapper, topCtx mustache.Context) Mapp
 }
 
 func BuildGoogle_prettify(cnf Mapper, topCtx mustache.Context) (Widget, error) {
-	if enable, ok := cnf["linenums"].(bool); ok { //是否显示行号
+	if enable, ok := cnf["linenums"].(bool); ok && enable { //是否显示行号
 		self := make(google_prettify)
 		self["google_prettify"] = fmt.Sprintf(tpl_google_prettify, "linenums")
 		return self, nil
