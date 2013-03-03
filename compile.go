@@ -567,11 +567,11 @@ func MakeSummary(post Mapper, lines int, topCtx mustache.Context) string {
 func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Context) {
 	PrintJson(pgCnf)
 	summary_lines := int(FromCtx(topCtx, "site.config.posts.summary_lines").(int64))
-	pre_page := pgCnf.Int("per_page")
-	if pre_page < 2 {
-		pre_page = 2
-	} else if pre_page > 100 {
-		pre_page = 100
+	per_page := pgCnf.Int("per_page")
+	if per_page < 2 {
+		per_page = 2
+	} else if per_page > 100 {
+		per_page = 100
 	}
 	namespace := pgCnf.String("namespace")
 	if namespace == "" {
@@ -584,37 +584,20 @@ func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Co
 	chronological, _ := FromCtx(topCtx, "db.posts.chronological").([]string)
 	dictionary, _ := FromCtx(topCtx, "db.posts.dictionary").(map[string]Mapper)
 
-	page_count := (len(chronological) / pre_page) + 1
+	page_count := len(chronological)/per_page + 1
+	if len(chronological)%per_page == 0 {
+		page_count--
+	}
 
-	log.Println(pre_page, namespace, layout, page_count)
+	log.Println(per_page, namespace, layout, page_count)
 	paginator_navigation := make([]Mapper, page_count)
 	for i := 0; i < len(paginator_navigation); i++ {
-		//log.Println("page number =", i+1)
+		log.Println("page number =", i+1)
 		pn := make(Mapper)
 		pn["page_number"] = i + 1
 		pn["name"] = fmt.Sprintf("%d", i+1)
 		pn["url"] = fmt.Sprintf("%s%d/", namespace, i+1)
-		pn["is_active_page"] = func(nodes []mustache.Node, isInverted bool, _ctx mustache.Context, w io.Writer) error {
-			curPageNum := FromCtx(_ctx, "posts.current_page_number")
-			if curPageNum != nil && curPageNum.(int) == (i+1) && !isInverted {
-				for _, node := range nodes {
-					err := node.Render(mustache.MakeContexts(_ctx), w)
-					if err != nil {
-						return err
-					}
-				}
-			}
-
-			if isInverted {
-				for _, node := range nodes {
-					err := node.Render(mustache.MakeContexts(_ctx), w)
-					if err != nil {
-						return err
-					}
-				}
-			}
-			return nil
-		}
+		pn["is_active_page"] = false
 		paginator_navigation[i] = pn
 	}
 
@@ -622,11 +605,17 @@ func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Co
 
 	one_page := make([]Mapper, 0)
 	current_page_number := 0
+	log.Println("Total posts: ", len(chronological))
 	for i, post_id := range chronological {
-		current_page_number = (i / pre_page) + 1
-		if (i+1)%pre_page == 0 {
+		current_page_number = (i / per_page) + 1
+		if i != 0 && i%per_page == 0 {
 			posts_ctx["current_page_number"] = current_page_number
 			posts_ctx["paginator"] = one_page
+			if current_page_number >= 2 {
+				paginator_navigation[current_page_number-2]["is_active_page"] = false
+			}
+			paginator_navigation[current_page_number-1]["is_active_page"] = true
+
 			renderOnePager(paginator_navigation[current_page_number-1].String("url"), layout, layouts, mustache.MakeContexts(map[string]interface{}{"posts": posts_ctx, "page": map[string]interface{}{}}, topCtx))
 			one_page = one_page[0:0]
 		}
@@ -635,8 +624,12 @@ func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Co
 		one_page = append(one_page, post)
 	}
 	if len(one_page) > 0 {
-		posts_ctx["page_number"] = current_page_number
+		posts_ctx["current_page_number"] = current_page_number
 		posts_ctx["paginator"] = one_page
+		if current_page_number >= 2 {
+			paginator_navigation[current_page_number-2]["is_active_page"] = false
+		}
+		paginator_navigation[current_page_number-1]["is_active_page"] = true
 		renderOnePager(paginator_navigation[current_page_number-1].String("url"), layout, layouts, mustache.MakeContexts(map[string]interface{}{"posts": posts_ctx, "page": map[string]interface{}{}}, topCtx))
 	}
 }
