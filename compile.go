@@ -607,8 +607,9 @@ func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Co
 	current_page_number := 0
 	log.Println("Total posts: ", len(chronological))
 	for i, post_id := range chronological {
-		current_page_number = (i / per_page) + 1
 		if i != 0 && i%per_page == 0 {
+			current_page_number++
+			log.Printf("rendering page #%d with %d posts", current_page_number, len(one_page))
 			posts_ctx["current_page_number"] = current_page_number
 			posts_ctx["paginator"] = one_page
 			if current_page_number >= 2 {
@@ -624,6 +625,8 @@ func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Co
 		one_page = append(one_page, post)
 	}
 	if len(one_page) > 0 {
+		current_page_number++
+		log.Printf("rendering page #%d with %d post(s)", current_page_number, len(one_page))
 		posts_ctx["current_page_number"] = current_page_number
 		posts_ctx["paginator"] = one_page
 		if current_page_number >= 2 {
