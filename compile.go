@@ -632,7 +632,6 @@ func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Co
 		}
 		paginator_navigation[current_page_number-1]["is_active_page"] = true
 		m := make(Mapper)
-		m["current_page_number"] = "post.md"
 		widgetCtx := PrapareWidgets(widgets, m, topCtx)
 		renderOnePager(paginator_navigation[current_page_number-1].String("url"), layout, layouts,
 			mustache.MakeContexts(map[string]interface{}{"posts": posts_ctx,
