@@ -115,12 +115,11 @@ func Compile() error {
 
 	//我们还得把分页给解决了哦
 	if paginatorCnf := FromCtx(topCtx, "site.config.paginator"); paginatorCnf != nil {
-		log.Println("paginator is enable")
 		var pgCnf Mapper
 		pgCnf = paginatorCnf.(map[string]interface{})
 		if _, ok := layouts[pgCnf.String("layout")]; ok {
 			log.Println("Enable paginator")
-			renderPaginator(pgCnf, layouts, topCtx)
+			renderPaginator(pgCnf, layouts, topCtx, widgets)
 		} else {
 			log.Println("Layout Not Found", pgCnf.String("layout"))
 		}
@@ -564,8 +563,7 @@ func MakeSummary(post Mapper, lines int, topCtx mustache.Context) string {
 	return MarkdownToHtml(str)
 }
 
-func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Context) {
-	PrintJson(pgCnf)
+func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Context, widgets []Widget) {
 	summary_lines := int(FromCtx(topCtx, "site.config.posts.summary_lines").(int64))
 	per_page := pgCnf.Int("per_page")
 	if per_page < 2 {
@@ -589,10 +587,8 @@ func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Co
 		page_count--
 	}
 
-	log.Println(per_page, namespace, layout, page_count)
 	paginator_navigation := make([]Mapper, page_count)
 	for i := 0; i < len(paginator_navigation); i++ {
-		log.Println("page number =", i+1)
 		pn := make(Mapper)
 		pn["page_number"] = i + 1
 		pn["name"] = fmt.Sprintf("%d", i+1)
@@ -609,15 +605,17 @@ func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Co
 	for i, post_id := range chronological {
 		if i != 0 && i%per_page == 0 {
 			current_page_number++
-			log.Printf("rendering page #%d with %d posts", current_page_number, len(one_page))
+			log.Printf("Rendering page #%d with %d posts", current_page_number, len(one_page))
 			posts_ctx["current_page_number"] = current_page_number
 			posts_ctx["paginator"] = one_page
 			if current_page_number >= 2 {
 				paginator_navigation[current_page_number-2]["is_active_page"] = false
 			}
 			paginator_navigation[current_page_number-1]["is_active_page"] = true
-
-			renderOnePager(paginator_navigation[current_page_number-1].String("url"), layout, layouts, mustache.MakeContexts(map[string]interface{}{"posts": posts_ctx, "page": map[string]interface{}{}}, topCtx))
+			widgetCtx := PrapareWidgets(widgets, make(Mapper), topCtx)
+			renderOnePager(paginator_navigation[current_page_number-1].String("url"), layout, layouts,
+				mustache.MakeContexts(map[string]interface{}{"posts": posts_ctx,
+					"page": map[string]interface{}{}}, topCtx, widgetCtx))
 			one_page = one_page[0:0]
 		}
 		post := dictionary[post_id]
@@ -626,14 +624,18 @@ func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Co
 	}
 	if len(one_page) > 0 {
 		current_page_number++
-		log.Printf("rendering page #%d with %d post(s)", current_page_number, len(one_page))
+		log.Printf("Rendering page #%d with %d post(s)", current_page_number, len(one_page))
 		posts_ctx["current_page_number"] = current_page_number
 		posts_ctx["paginator"] = one_page
 		if current_page_number >= 2 {
 			paginator_navigation[current_page_number-2]["is_active_page"] = false
 		}
 		paginator_navigation[current_page_number-1]["is_active_page"] = true
-		renderOnePager(paginator_navigation[current_page_number-1].String("url"), layout, layouts, mustache.MakeContexts(map[string]interface{}{"posts": posts_ctx, "page": map[string]interface{}{}}, topCtx))
+		m := make(Mapper)
+		widgetCtx := PrapareWidgets(widgets, m, topCtx)
+		renderOnePager(paginator_navigation[current_page_number-1].String("url"), layout, layouts,
+			mustache.MakeContexts(map[string]interface{}{"posts": posts_ctx,
+				"page": map[string]interface{}{}}, topCtx, widgetCtx))
 	}
 }
 
