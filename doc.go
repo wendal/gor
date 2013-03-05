@@ -21,7 +21,7 @@ const (
 // 存在核心配置文件的路径,才可能是Gor的目录
 func IsGorDir(path string) bool {
 	_, err := os.Stat(path + "/" + CONFIG_YAML)
-	return err != nil
+	return err == nil
 }
 
 // 以Json方式打印对象,方便调试
