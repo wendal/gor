@@ -58,7 +58,7 @@ func BuildPlayload(root string) (payload map[string]interface{}, err error) {
 	}
 	cnf["theme"] = themeName // 保证是string
 
-	payload["layouts"] = LoadLayouts(themeName)
+	payload["layouts"] = LoadLayouts(root, themeName)
 
 	production_url := cnf.String("production_url")
 	if production_url == "" {
@@ -578,10 +578,11 @@ func SortPosts(dict map[string]Mapper, post_ids []string) []string {
 	return post_ids
 }
 
-func LoadLayouts(theme string) map[string]Mapper {
+func LoadLayouts(root string, theme string) map[string]Mapper {
 	layouts := make(map[string]Mapper)
 	var layout Mapper
-	filepath.Walk("themes/"+theme+"/layouts/", func(path string, info os.FileInfo, err error) error {
+	log.Println(">>>", root+"themes/"+theme+"/layouts/")
+	filepath.Walk(root+"themes/"+theme+"/layouts/", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}

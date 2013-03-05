@@ -154,3 +154,85 @@ func (c CollatedMonths) Swap(i, j int) {
 func (c CollatedMonths) Less(i, j int) bool {
 	return c[i]._month > c[j]._month
 }
+
+type WebSite struct {
+	Root     string
+	SiteCnf  SiteConfig
+	TopCnf   TopConfig
+	Posts    map[string]PostBean
+	Pages    map[string]PageBean
+	ThemeCnf ThemeConfig
+	Layouts  map[string]Mapper
+
+	RootURL   string
+	BasePath  string
+	BaiseURLs map[string]string
+
+	Tags          map[string]*Tag
+	Catalogs      map[string]*Catalog
+	Chronological []string
+	Collated      CollatedYears
+}
+
+type SiteConfig struct {
+	Title      string
+	Tagline    string
+	Author     Mapper
+	Navigation []string
+	//Urls       map[string]interface{} // for user custom
+}
+
+type TopConfig struct {
+	Theme          string
+	Production_url string
+	Posts          PostConfig
+	Pages          PageConfig
+	Paginator      PaginatorConfig
+}
+
+type PostConfig struct {
+	Permalink     string
+	Summary_lines int
+	Latest        int
+	Layout        string
+	Exclude       string
+}
+
+type PageConfig struct {
+	Permalink string
+	Layout    string
+	Exclude   string
+}
+
+type PaginatorConfig struct {
+	Namespace string
+	Per_page  int
+	Root_page string
+	Layout    string
+}
+
+type PostBean struct {
+	Id         string
+	Title      string
+	Date       string
+	Layout     string
+	Permalink  string
+	Categories []string
+	Tags       []string
+	Url        string
+	_Date      time.Time
+	_Meta      map[string]interface{}
+}
+type PageBean struct {
+	Id         string
+	Title      string
+	Date       time.Time
+	Layout     string
+	Permalink  string
+	Categories []string
+	Tags       []string
+	Url        string
+	_Meta      map[string]interface{}
+}
+
+type ThemeConfig struct{}
