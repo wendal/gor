@@ -510,7 +510,9 @@ func AsStrings(v interface{}) (strs []string) {
 
 // 转为URL友好的路径
 func EncodePathInfo(pathinfo string) string {
-	return strings.Replace(URL.QueryEscape(pathinfo), "+", "%20", -1)
+	pathinfo = strings.Replace(pathinfo, " ", "_", -1)
+	pathinfo = strings.Replace(pathinfo, ":", "_", -1)
+	return URL.QueryEscape(pathinfo)
 }
 
 // 解码URL编码的路径信息
