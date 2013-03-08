@@ -517,6 +517,7 @@ func EncodePathInfo(pathinfo string) string {
 func DecodePathInfo(pathinfo string) string {
 	pathinfo2, err := URL.QueryUnescape(pathinfo)
 	if err != nil {
+		log.Println("DecodePathInfo Fail", err)
 		return pathinfo
 	}
 	return pathinfo2

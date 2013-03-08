@@ -401,7 +401,7 @@ func WriteTo(url string, content string) {
 		url = url + "/index.html"
 	}
 
-	url = filepath.Dir(url) + "/" + DecodePathInfo(filepath.Base(url))
+	url = DecodePathInfo(url)
 
 	dstPath := "compiled" + url
 	os.MkdirAll(filepath.Dir(dstPath), os.ModePerm)
