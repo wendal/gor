@@ -57,7 +57,7 @@ func MarkdownToHtml(content string) (str string) {
 
 	str = string(Markdown([]byte(content), renderer, extensions))
 
-	if htmlFlags&HTML_TOC == 1 {
+	if htmlFlags&HTML_TOC != 0 {
 		found := navRegex.FindIndex([]byte(str))
 		if len(found) > 0 {
 			toc := str[found[0]:found[1]]
