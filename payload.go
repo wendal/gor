@@ -243,7 +243,7 @@ func BuildPlayload(root string) (payload map[string]interface{}, err error) {
 		for _, _tag := range post.Tags() {
 			tag := tags[_tag]
 			if tag == nil {
-				tag = &Tag{0, _tag, make([]string, 0), "/tags#" + EncodePathInfo(_tag) + "-ref"}
+				tag = &Tag{0, _tag, make([]string, 0), "/tags/#" + EncodePathInfo(_tag) + "-ref"}
 				tags[_tag] = tag
 			}
 			tag.Count += 1
@@ -253,7 +253,7 @@ func BuildPlayload(root string) (payload map[string]interface{}, err error) {
 		for _, _catalog := range post.Categories() {
 			catalog := catalogs[_catalog]
 			if catalog == nil {
-				catalog = &Catalog{0, _catalog, make([]string, 0), "/categories#" + EncodePathInfo(_catalog) + "-ref"}
+				catalog = &Catalog{0, _catalog, make([]string, 0), "/categories/#" + EncodePathInfo(_catalog) + "-ref"}
 				catalogs[_catalog] = catalog
 			}
 			catalog.Count += 1
@@ -510,8 +510,8 @@ func AsStrings(v interface{}) (strs []string) {
 
 // 转为URL友好的路径
 func EncodePathInfo(pathinfo string) string {
-	pathinfo = strings.Replace(pathinfo, " ", "_", -1)
-	pathinfo = strings.Replace(pathinfo, ":", "_", -1)
+	pathinfo = strings.Replace(pathinfo, " ", "-", -1)
+	pathinfo = strings.Replace(pathinfo, ":", "-", -1)
 	return URL.QueryEscape(pathinfo)
 }
 
