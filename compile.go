@@ -560,6 +560,7 @@ func MakeSummary(post Mapper, lines int, topCtx mustache.Context) string {
 			str = post["_content"].(*DocContent).Main
 		}
 	}
+	str = strings.Replace(str, TOC_MARKUP, "", 1)
 	return MarkdownToHtml(str)
 }
 
