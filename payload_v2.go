@@ -234,7 +234,7 @@ func (webSite *WebSite) LoadPosts() {
 		for _, _tag := range post.Tags {
 			tag := tags[_tag]
 			if tag == nil {
-				tag = &Tag{0, _tag, make([]string, 0), "/tags#" + EncodePathInfo(_tag) + "-ref"}
+				tag = &Tag{0, _tag, make([]string, 0), "/tags/#" + EncodePathInfo(_tag) + "-ref"}
 				tags[_tag] = tag
 			}
 			tag.Count += 1
@@ -244,7 +244,7 @@ func (webSite *WebSite) LoadPosts() {
 		for _, _catalog := range post.Categories {
 			catalog := catalogs[_catalog]
 			if catalog == nil {
-				catalog = &Catalog{0, _catalog, make([]string, 0), "/categories#" + EncodePathInfo(_catalog) + "-ref"}
+				catalog = &Catalog{0, _catalog, make([]string, 0), "/categories/#" + EncodePathInfo(_catalog) + "-ref"}
 				catalogs[_catalog] = catalog
 			}
 			catalog.Count += 1
