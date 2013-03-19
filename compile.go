@@ -32,6 +32,10 @@ func Compile() error {
 	payload_ctx := mustache.MakeContextDir(payload, ".tmp_partials/")
 	themeName := FromCtx(payload_ctx, "site.config.theme").(string)
 
+	if FromCtx(payload_ctx, "site.config.markdown.toc_title") != nil {
+		TOC_TITLE = FromCtx(payload_ctx, "site.config.markdown.toc_title").(string)
+	}
+
 	os.Remove(".tmp_partials")
 	copyDir("partials", ".tmp_partials")
 	copyDir("themes/"+themeName+"/partials", ".tmp_partials")
