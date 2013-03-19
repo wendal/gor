@@ -16,6 +16,10 @@ const (
 	TOC_MARKUP = "{:toc}"
 )
 
+var (
+	TOC_TITLE = "<h1>Index:</h1>"
+)
+
 var navRegex = regexp.MustCompile(`(?ismU)<nav>(.*)</nav>`)
 
 func MarkdownToHtml(content string) (str string) {
@@ -61,6 +65,7 @@ func MarkdownToHtml(content string) (str string) {
 		found := navRegex.FindIndex([]byte(str))
 		if len(found) > 0 {
 			toc := str[found[0]:found[1]]
+			toc = TOC_TITLE + toc
 			str = str[found[1]:]
 			str = strings.Replace(str, TOC_MARKUP, toc, -1)
 		}
