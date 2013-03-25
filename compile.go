@@ -544,14 +544,26 @@ func MakeSummary(post Mapper, lines int, topCtx mustache.Context) string {
 	content := post["_content"].(*DocContent).Source
 	r := bufio.NewReader(bytes.NewBufferString(content))
 	dst := ""
+	readUntil := ""
 	for lines > 0 {
 		line, _ := r.ReadString('\n')
 		dst += line
 		lines--
+		if strings.Trim(line, "\r\n\t ") == "```" {
+			if readUntil == "" {
+				readUntil = "```"
+			} else {
+				readUntil = ""
+			}
+		}
 		if lines == 0 {
-			for "" != strings.Trim(line, "\r\n\t ") {
-				line, _ = r.ReadString('\n')
+			var err error
+			for readUntil != strings.Trim(line, "\r\n\t ") {
+				line, err = r.ReadString('\n')
 				dst += line
+				if err != nil {
+					break
+				}
 			}
 		}
 	}
