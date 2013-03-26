@@ -19,6 +19,8 @@ To install:
 如果是通过[brew](https://github.com/mxcl/homebrew)来安装`go`，并且没有设置`$GOROOT`跟`$GOPATH`的话，请使用如下命令
 
     ln -s /usr/local/Cellar/go/1.0.3/bin/gor /usr/local/bin
+	
+或者你可以从googecode直接下载[编译好的gor](http://gor.googlecode.com)
 
 ## Quick Start 快速入门
 ======================
@@ -82,3 +84,14 @@ This project is licensed under the BSD license.
 
 	
 Copyright (C) 2013, by WendalChen wendal1985@gmail.com.
+
+正在使用Gor的博客
+-----------------------
+
+[When Go meets Raspberry Pi](http://hugozhu.myalert.info/)
+[RaymondChou's Blog](http://ledbk.com/)
+[wendal随笔](http://wendal.net)
+
+
+
+如果也在使用,欢迎email或者开个issue告诉我们哦
