@@ -89,7 +89,9 @@ Copyright (C) 2013, by WendalChen wendal1985@gmail.com.
 -----------------------
 
 [When Go meets Raspberry Pi](http://hugozhu.myalert.info/)
+
 [RaymondChou's Blog](http://ledbk.com/)
+
 [wendal随笔](http://wendal.net)
 
 
