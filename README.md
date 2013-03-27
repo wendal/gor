@@ -92,6 +92,8 @@ Copyright (C) 2013, by WendalChen wendal1985@gmail.com.
 
 [RaymondChou's Blog](http://ledbk.com/)
 
+[visualfc's blog](http://visualfc.github.com/)
+
 [wendal随笔](http://wendal.net)
 
 
