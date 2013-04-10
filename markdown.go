@@ -3,7 +3,8 @@ package gor
 import (
 	//"bytes"
 	// "github.com/knieriem/markdown"
-	. "github.com/russross/blackfriday"
+	//. "github.com/russross/blackfriday"
+	. "github.com/wendal/blackfriday"
 	"log"
 	"regexp"
 	"strings"
@@ -48,6 +49,7 @@ func MarkdownToHtml(content string) (str string) {
 	htmlFlags |= HTML_USE_SMARTYPANTS
 	htmlFlags |= HTML_SMARTYPANTS_FRACTIONS
 	htmlFlags |= HTML_SMARTYPANTS_LATEX_DASHES
+	htmlFlags |= HTML_HEADER_IDS
 	renderer := HtmlRenderer(htmlFlags, "", "")
 
 	// set up the parser
