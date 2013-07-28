@@ -48,7 +48,22 @@ const (
   prettyPrint();
 </script>
 `
-
+	Comments_duoshuo = `
+	<!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"%s"};//require,replace your short_name
+	(function() {
+					var ds = document.createElement('script');
+					ds.type = 'text/javascript';ds.async = true;
+					ds.src = 'http://static.duoshuo.com/embed.js';
+					ds.charset = 'UTF-8';
+					(document.getElementsByTagName('head')[0] 
+					|| document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- Duoshuo Comment END -->	
+	`
 	tpl_cnzz = `<script src="http://s25.cnzz.com/stat.php?id=%d&web_id=%d" language="JavaScript"></script>`
 )
 
@@ -176,6 +191,15 @@ func BuildCommentsWidget(cnf Mapper, topCtx mustache.Context) (Widget, error) {
 		}
 		self := make(CommentsWidget)
 		self["comments"] = fmt.Sprintf(Comments_disqus, short_name)
+		return self, nil
+	case "duoshuo":
+		duoshuo := cnf[cnf.Layout()].(map[string]interface{})
+		short_name := duoshuo["short_name"]
+		if short_name == nil {
+			return nil, errors.New("CommentsWidget Of duoshuo need short_name")
+		}
+		self := make(CommentsWidget)
+		self["comments"] = fmt.Sprintf(Comments_duoshuo, short_name)
 		return self, nil
 	}
 	// 其他的,想不到还有啥,哈哈,需要其他的就报个issue吧
