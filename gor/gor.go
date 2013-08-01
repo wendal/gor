@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"flag"
-	"github.com/wendal/gor"
+	"github.com/ifq/gor"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -28,7 +28,7 @@ func init() {
 func main() {
 	flag.Parse()
 	args := flag.Args()
-	if len(args) == 0 || len(args) > 2 {
+	if len(args) == 0 || len(args) > 3 {
 		PrintUsage()
 		os.Exit(1)
 	}
@@ -72,8 +72,11 @@ func main() {
 	case "post":
 		if len(args) == 1 {
 			log.Fatal("gor post <title>")
+		} else if len(args) == 2 {
+			gor.CreateNewPost(args[1])
+		} else {
+			gor.CreateNewPostWithImgs(args[1], args[2])
 		}
-		gor.CreateNewPost(args[1])
 	case "http":
 		log.Println("Listen at ", *http_addr)
 		log.Println(http.ListenAndServe(*http_addr, http.FileServer(http.Dir("compiled"))))
