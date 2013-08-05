@@ -47,8 +47,10 @@ Create a new website
 Create a new post
 ----------
 
-	gor post "goodday"
+	gor post "goodday" [dir/to/img/files]
 	#generate a new post file: post/goodday.md, open it with your markdown editor to write.
+
+`dir/to/img/files` is optionl. If it's provided, all files in that dir will be copy into blog dir(configurable dir), and insert `<img>` tag into post file. 
 
 Configuration
 --------
@@ -63,6 +65,10 @@ Open the config.yml file in root folder
 1. production_url is your website address, such as http://wendal.net, don't add '/' at last, it will be used to generate rss.xml etc.
 2. summary_lines is the length of abstract on homepage, any number as you like.
 3. latest is how many posts will be shown on homepage
+4. `imgs` parts is auto img config
+   * `imgtag`：basic format for <img> tag to be insert. the `%s` part will to replaced by `urlperfix/post_name/img_file_name`
+   * `urlperfix`：img file url perfix
+   * `localdir`：location inside blog repo for img file storage
 
 Open widgets folder, you can see some widgets here, there is a config.yml file of each widget for configuration.
 
@@ -128,8 +134,10 @@ To install:
 ----------
 
 	cd example.com
-	gor post "goodday"
+	gor post "goodday" [dir/to/img/files]
 	#即可生成 post/goodday.md文件, 打开你的markdown编辑器即可编写
+
+如果输入可选参数 `dir/to/img/files`，gor 会从该目录拷贝图片文件到配置的目录，同时在 `goodday.md` 中自动插入对应的 `<img>` 标签。
 
 基本配置
 --------
@@ -144,6 +152,10 @@ To install:
 1. 设置production_url为你的网站地址, 例如 http://wendal.net 最后面不需要加入/ 生成rss.xml等文件时会用到
 2. summary_lines 首页的文章摘要的长度,按你喜欢的呗
 3. latest 首页显示多少文章
+4. imgs 部分为自动插入 `<img>` 相关的配置
+   * `imgtag`：要插入的 <img> 标签的基本格式，`%s` 部分会被自动替换为 `urlperfix/post_name/img_file_name` 的格式
+   * `urlperfix`： 图片地址前缀
+   * `localdir`：图片文件在博客内的本地存放目录
 
 打开widgets目录, 可以看到基本的挂件,里面有config.yml配置文件
 
@@ -191,6 +203,7 @@ Sites using gor
 
 [wendal随笔](http://wendal.net)
 
+[一个热爱木工的软件工程师](http://iwood.co.nr)
 
 If you are also using gor, please don't hesitate to tell me by email or open an issue.
 如果也在使用,欢迎email或者开个issue告诉我们哦
