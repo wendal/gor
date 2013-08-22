@@ -561,7 +561,13 @@ func (p Posts) Len() int {
 }
 
 func (p Posts) Less(i, j int) bool {
-	return p[i]["_date"].(time.Time).After(p[j]["_date"].(time.Time))
+	p1_time := p[i]["_date"].(time.Time)
+	p2_time := p[j]["_date"].(time.Time)
+	if p1_time.Unix() != p2_time.Unix() {
+		return p1_time.After(p2_time)
+	}
+	
+	return p[i].Id() > p[j].Id()
 }
 
 func (p Posts) Swap(i, j int) {
