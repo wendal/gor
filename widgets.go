@@ -50,6 +50,13 @@ const (
 `
 
 	tpl_cnzz = `<script src="http://s25.cnzz.com/stat.php?id=%d&web_id=%d" language="JavaScript"></script>`
+
+	tpl_uyan = `
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=%d"></script>
+<!-- UY END -->
+	`
 )
 
 type WidgetBuilder func(Mapper, mustache.Context) (Widget, error)
@@ -167,6 +174,7 @@ func (self CommentsWidget) Prepare(mapper Mapper, topCtx mustache.Context) Mappe
 }
 
 func BuildCommentsWidget(cnf Mapper, topCtx mustache.Context) (Widget, error) {
+	log.Println("Comments >>", cnf.Layout())
 	switch cnf.Layout() {
 	case "disqus":
 		disqus := cnf[cnf.Layout()].(map[string]interface{})
@@ -176,6 +184,12 @@ func BuildCommentsWidget(cnf Mapper, topCtx mustache.Context) (Widget, error) {
 		}
 		self := make(CommentsWidget)
 		self["comments"] = fmt.Sprintf(Comments_disqus, short_name)
+		return self, nil
+	case "uyan" :
+		uyan := cnf[cnf.Layout()].(map[string]interface{})
+		uid := uyan["uid"]
+		self := make(CommentsWidget)
+		self["comments"] = fmt.Sprintf(tpl_uyan, uid)
 		return self, nil
 	}
 	// 其他的,想不到还有啥,哈哈,需要其他的就报个issue吧
