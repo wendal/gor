@@ -214,6 +214,7 @@ func BuildCommentsWidget(cnf Mapper, topCtx mustache.Context) (Widget, error) {
 		uid := uyan["uid"]
 		self := make(CommentsWidget)
 		self["comments"] = fmt.Sprintf(tpl_uyan, uid)
+		return self, nil
 	case "duoshuo":
 		duoshuo := cnf[cnf.Layout()].(map[string]interface{})
 		short_name := duoshuo["short_name"]
