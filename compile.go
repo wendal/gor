@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sort"
 )
 
 // 编译整个网站
@@ -236,8 +237,13 @@ func BaiscHelpers(payload Mapper, helpers map[string]mustache.SectionRenderFunc,
 		if inverted {
 			return nil
 		}
-		//log.Println("Using #categories")
-		for _, categorie := range categories {
+		names := make([]string, 0)[0:0]
+		for name, _ := range categories {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+		for _, name := range names {
+			categorie := categories[name]
 			for _, node := range nodes {
 				err = node.Render(mustache.MakeContexts(categorie, ctx), w)
 				if err != nil {
@@ -253,7 +259,13 @@ func BaiscHelpers(payload Mapper, helpers map[string]mustache.SectionRenderFunc,
 		if inverted {
 			return nil
 		}
-		for _, tag := range tags {
+		names := make([]string, 0)[0:0]
+		for name, _ := range tags {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+		for name, _ := range tags {
+			tag := tags[name]
 			for _, node := range nodes {
 				err = node.Render(mustache.MakeContexts(tag, ctx), w)
 				if err != nil {
