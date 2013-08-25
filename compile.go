@@ -264,7 +264,7 @@ func BaiscHelpers(payload Mapper, helpers map[string]mustache.SectionRenderFunc,
 			names = append(names, name)
 		}
 		sort.Strings(names)
-		for name, _ := range tags {
+		for _, name := range names {
 			tag := tags[name]
 			for _, node := range nodes {
 				err = node.Render(mustache.MakeContexts(tag, ctx), w)
@@ -645,7 +645,7 @@ func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Co
 			widgetCtx := PrapareWidgets(widgets, make(Mapper), topCtx)
 			renderOnePager(paginator_navigation[current_page_number-1].String("url"), layout, layouts,
 				mustache.MakeContexts(map[string]interface{}{"posts": posts_ctx,
-					"page": map[string]interface{}{"title": fmt.Sprintf("%s Page %d",siteTitle, i)}}, topCtx, widgetCtx))
+					"page": map[string]interface{}{"title": fmt.Sprintf("%s Page %d",siteTitle, current_page_number)}}, topCtx, widgetCtx))
 			one_page = one_page[0:0]
 		}
 		post := dictionary[post_id]
@@ -665,7 +665,7 @@ func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Co
 		widgetCtx := PrapareWidgets(widgets, m, topCtx)
 		renderOnePager(paginator_navigation[current_page_number-1].String("url"), layout, layouts,
 			mustache.MakeContexts(map[string]interface{}{"posts": posts_ctx,
-				"page": map[string]interface{}{}}, topCtx, widgetCtx))
+				"page": map[string]interface{}{"title": fmt.Sprintf("%s Page %d",siteTitle, current_page_number)}}, topCtx, widgetCtx))
 	}
 }
 
