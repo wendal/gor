@@ -50,7 +50,7 @@ type RssItem struct {
 func (*RssPlugin) Exec(topCtx mustache.Context) {
 	title := FromCtx(topCtx, "site.title").(string)
 	production_url := FromCtx(topCtx, "site.config.production_url").(string)
-	pubDate := time.Now().Format("2006-01-02 03:04:05 +0800")
+	pubDate := time.Now().Format(time.RFC822)
 	post_ids := FromCtx(topCtx, "db.posts.chronological").([]string)
 	posts := FromCtx(topCtx, "db.posts.dictionary").(map[string]Mapper)
 	items := make([]RssItem, 0)
