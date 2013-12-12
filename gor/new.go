@@ -36,7 +36,7 @@ func CmdInit(path string) {
 		if zf.FileInfo().IsDir() {
 			continue
 		}
-		dst := path + "/" + zf.FileInfo().Name()
+		dst := path + "/" + zf.Name
 		os.MkdirAll(filepath.Dir(dst), os.ModePerm)
 		f, err := os.OpenFile(dst, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 		if err != nil {
