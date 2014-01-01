@@ -128,7 +128,7 @@ func BuildPlayload(root string) (payload map[string]interface{}, err error) {
 	if cnf_posts.GetInt("summary_lines") < 5 {
 		cnf_posts["summary_lines"] = 20
 	}
-	if cnf_posts.GetInt("lastest") < 5 {
+	if cnf_posts.GetInt("latest") < 5 {
 		cnf_posts["latest"] = 10
 	}
 	if cnf_posts.Layout() == "" {
@@ -566,7 +566,7 @@ func (p Posts) Less(i, j int) bool {
 	if p1_time.Unix() != p2_time.Unix() {
 		return p1_time.After(p2_time)
 	}
-	
+
 	return p[i].Id() > p[j].Id()
 }
 
