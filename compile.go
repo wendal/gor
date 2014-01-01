@@ -11,8 +11,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"sort"
+	"strings"
 )
 
 // 编译整个网站
@@ -163,7 +163,7 @@ func RenderInLayout(content string, layoutName string, layouts map[string]Mapper
 func BaiscHelpers(payload Mapper, helpers map[string]mustache.SectionRenderFunc, topCtx mustache.Context) {
 	var err error
 	chronological := FromCtx(topCtx, "db.posts.chronological").([]string)
-	latest_size := FromCtx(topCtx, "site.config.posts.latest").(int)
+	latest_size := int(FromCtx(topCtx, "site.config.posts.latest").(int64))
 	dict := FromCtx(topCtx, "db.posts.dictionary").(map[string]Mapper)
 	summary_lines := int(FromCtx(topCtx, "site.config.posts.summary_lines").(int64))
 	latest_posts := make([]Mapper, 0)
@@ -610,7 +610,7 @@ func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Co
 
 	chronological, _ := FromCtx(topCtx, "db.posts.chronological").([]string)
 	dictionary, _ := FromCtx(topCtx, "db.posts.dictionary").(map[string]Mapper)
-	siteTitle , _ := FromCtx(topCtx, "site.title").(string)
+	siteTitle, _ := FromCtx(topCtx, "site.title").(string)
 
 	page_count := len(chronological)/per_page + 1
 	if len(chronological)%per_page == 0 {
@@ -645,7 +645,7 @@ func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Co
 			widgetCtx := PrapareWidgets(widgets, make(Mapper), topCtx)
 			renderOnePager(paginator_navigation[current_page_number-1].String("url"), layout, layouts,
 				mustache.MakeContexts(map[string]interface{}{"posts": posts_ctx,
-					"page": map[string]interface{}{"title": fmt.Sprintf("%s Page %d",siteTitle, current_page_number)}}, topCtx, widgetCtx))
+					"page": map[string]interface{}{"title": fmt.Sprintf("%s Page %d", siteTitle, current_page_number)}}, topCtx, widgetCtx))
 			one_page = one_page[0:0]
 		}
 		post := dictionary[post_id]
@@ -665,7 +665,7 @@ func renderPaginator(pgCnf Mapper, layouts map[string]Mapper, topCtx mustache.Co
 		widgetCtx := PrapareWidgets(widgets, m, topCtx)
 		renderOnePager(paginator_navigation[current_page_number-1].String("url"), layout, layouts,
 			mustache.MakeContexts(map[string]interface{}{"posts": posts_ctx,
-				"page": map[string]interface{}{"title": fmt.Sprintf("%s Page %d",siteTitle, current_page_number)}}, topCtx, widgetCtx))
+				"page": map[string]interface{}{"title": fmt.Sprintf("%s Page %d", siteTitle, current_page_number)}}, topCtx, widgetCtx))
 	}
 }
 
