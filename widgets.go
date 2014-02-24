@@ -1,4 +1,4 @@
-package gor
+﻿package gor
 
 import (
 	"fmt"
@@ -48,7 +48,7 @@ const (
 <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
 `
 	tpl_google_prettify = `
-<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script src="http://cdn.bootcss.com/prettify/r298/prettify.min.js"></script>
 <script>
   var pres = document.getElementsByTagName("pre");
   for (var i=0; i < pres.length; ++i) {

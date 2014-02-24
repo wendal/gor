@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	VER = "2.8.5"
+	VER = "3.6.1"
 )
 
 var (
@@ -48,8 +48,8 @@ func main() {
 		}
 		log.Println("global config\n", string(buf))
 	case "new":
-                fallthrough
-        case "init":
+		fallthrough
+	case "init":
 		if len(args) == 1 {
 			log.Fatalln(os.Args[0], "new", "<dir>")
 		}
