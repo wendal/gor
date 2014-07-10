@@ -210,5 +210,7 @@ Sites using gor
 
 [努力加贝](http://www.nljb.net)
 
+[混沌的云](http://blog.zerob13.in/)
+
 If you are also using gor, please don't hesitate to tell me by email or open an issue.
 如果也在使用,欢迎email或者开个issue告诉我们哦
