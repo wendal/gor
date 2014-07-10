@@ -531,8 +531,6 @@ func DecodePathInfo(pathinfo string) string {
 func CreatePostURL(db map[string]interface{}, basePath string, post map[string]interface{}) {
 	var url string
 	switch post["permalink"].(type) {
-	case int:
-		url = strconv.FormatInt(post["permalink"].(int), 10)
 	case int64:
 		url = strconv.FormatInt(post["permalink"].(int64), 10)
 	default:
