@@ -212,5 +212,7 @@ Sites using gor
 
 [混沌的云](http://blog.zerob13.in/)
 
+[腾达格尔的博客](http://www.best-apps-now.com/)
+
 If you are also using gor, please don't hesitate to tell me by email or open an issue.
 如果也在使用,欢迎email或者开个issue告诉我们哦
