@@ -3,10 +3,11 @@ package gor
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/wendal/mustache"
 	"log"
 	"os"
 	"time"
+
+	"github.com/wendal/mustache"
 )
 
 // 全局插件列表
@@ -74,7 +75,7 @@ func (*RssPlugin) Exec(topCtx mustache.Context) {
 		return
 	}
 	// FUCK!! 官方的xml库极其弱智,无法为struct指定名字
-	f.WriteString(`<?xml version="1.0"?>` + "\n" + `<rss version="2.0">`)
+	f.WriteString(`<?xml version="1.0"  encoding="UTF-8"?>` + "\n" + `<rss version="2.0">`)
 	str := string(data)
 	f.Write([]byte(str[len(`<rss version="2.0">`)+1 : len(str)-len("</rss>")]))
 	f.WriteString("</rss>")
