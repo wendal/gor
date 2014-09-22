@@ -214,5 +214,7 @@ Sites using gor
 
 [腾达格尔的博客](http://www.best-apps-now.com/)
 
+[阿泉网志 赵金泉的个人网站](http://zjq.in)
+
 If you are also using gor, please don't hesitate to tell me by email or open an issue.
 如果也在使用,欢迎email或者开个issue告诉我们哦
