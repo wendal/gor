@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/wendal/mustache"
 	"io"
 	"io/ioutil"
 	"log"
@@ -16,8 +17,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/wendal/mustache"
 )
 
 // 构建PayLoad
@@ -529,6 +528,7 @@ func DecodePathInfo(pathinfo string) string {
 
 // 创建permalink的配置生产路径(不限于Post)
 func CreatePostURL(db map[string]interface{}, basePath string, post map[string]interface{}) {
+
 	var url string
 	switch post["permalink"].(type) {
 	case int64:
@@ -536,6 +536,7 @@ func CreatePostURL(db map[string]interface{}, basePath string, post map[string]i
 	default:
 		url = post["permalink"].(string)
 	}
+
 	if strings.Contains(url, ":") {
 		year, month, day := post["_date"].(time.Time).Date()
 		url = strings.Replace(url, ":year", fmt.Sprintf("%v", year), -1)
