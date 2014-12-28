@@ -57,7 +57,7 @@ func main() {
 	case "posts":
 		gor.ListPosts()
 	case "payload":
-		payload, err := gor.BuildPlayload("./")
+		payload, err := gor.BuildPayload("./")
 		if err != nil {
 			log.Fatal(err)
 		}

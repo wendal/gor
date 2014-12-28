@@ -21,7 +21,7 @@ import (
 )
 
 // 构建PayLoad
-func BuildPlayload(root string) (payload map[string]interface{}, err error) {
+func BuildPayload(root string) (payload map[string]interface{}, err error) {
 	//检查处理的根路径
 	if root == "" {
 		root = "."

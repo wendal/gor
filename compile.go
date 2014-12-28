@@ -24,7 +24,7 @@ func Compile() error {
 
 	var layouts map[string]Mapper
 
-	payload, err := BuildPlayload("./") // payload,核心上下文的主要部分,不可变
+	payload, err := BuildPayload("./") // payload,核心上下文的主要部分,不可变
 	if err != nil {
 		log.Println("Build PayLoad FAIL!!")
 		return err
