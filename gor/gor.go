@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	VER = "3.6.1"
+	VER = "3.7.0"
 )
 
 var (

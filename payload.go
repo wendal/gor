@@ -25,7 +25,9 @@ func BuildPlayload(root string) (payload map[string]interface{}, err error) {
 		root = "."
 	}
 	root, err = filepath.Abs(root)
-	root += "/"
+	if ! strings.HasSuffix(root, "/") && !strings.HasSuffix(root, "\\") {
+		root += "/"
+	}
 	log.Println("root=", root)
 
 	// 开始读取配置
