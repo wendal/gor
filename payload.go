@@ -20,6 +20,10 @@ import (
 	"github.com/wendal/mustache"
 )
 
+var (
+	POST_NAME_DATE_RE, _ = regexp.Compile("^[0-9]{4}-[0-9]{2}-[0-9]{2}.+$")
+)
+
 // 构建PayLoad
 func BuildPayload(root string) (payload map[string]interface{}, err error) {
 	//检查处理的根路径
@@ -27,7 +31,7 @@ func BuildPayload(root string) (payload map[string]interface{}, err error) {
 		root = "."
 	}
 	root, err = filepath.Abs(root)
-	if ! strings.HasSuffix(root, "/") && !strings.HasSuffix(root, "\\") {
+	if !strings.HasSuffix(root, "/") && !strings.HasSuffix(root, "\\") {
 		root += "/"
 	}
 	log.Println("root=", root)
@@ -377,7 +381,7 @@ func LoadPosts(root string, exclude string) (posts map[string]Mapper, err error)
 		if _exclude != nil && _exclude.Match([]byte(path[len(root+"posts/"):])) {
 			return nil
 		}
-		post, err := LoadPost(root, path)
+		post, err := LoadPost(root, path, info.Name())
 		if err != nil {
 			return err
 		}
@@ -388,16 +392,20 @@ func LoadPosts(root string, exclude string) (posts map[string]Mapper, err error)
 }
 
 // 载入特定的Post
-func LoadPost(root string, path string) (ctx Mapper, err error) {
+func LoadPost(root string, path string, fname string) (ctx Mapper, err error) {
 	ctx, err = ReadMuPage(path)
 	if err != nil {
 		return
 	}
 	if ctx["date"] == nil {
-		err = errors.New("Miss date! >> " + path)
-		return
+		if !POST_NAME_DATE_RE.Match([]byte(fname)) {
+			err = errors.New("Miss date! >> " + path)
+			return
+		}
+		ctx["date"] = fname[:10]
 	}
 	if ctx["title"] == "" {
+
 		err = errors.New("Miss title! >> " + path)
 		return
 	}
