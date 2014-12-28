@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"flag"
+	"fmt"
+	"github.com/howeyc/fsnotify"
 	"github.com/wendal/gor"
 	"io/ioutil"
 	"log"
@@ -17,7 +19,27 @@ const (
 )
 
 var (
-	http_addr = flag.String("http", ":8080", "Http addr for Preview or Server")
+	http_addr   = flag.String("http", ":8080", "Http addr for Preview or Server")
+	args        []string
+	_compileVer = 0
+	_watch_js   = `
+<script type="text/javascript" src="http://lib.sinaapp.com/js/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript">
+	$(function() {
+	var _gor_compile_ver = 0;
+	var _404 = false;
+	function _sc(data) {
+		if (parseInt(data) != _gor_compile_ver) {
+			location.reload(true);
+		} else {
+			setTimeout(_gor_f5, 1000);
+		}
+	}
+	function _gor_f5() {$.get("/_api/f5?ver="+_gor_compile_ver, "", _sc)};
+	$.get("/_api/f5", "",  function(data) {_gor_compile_ver = parseInt(data);setTimeout(_gor_f5, 1000);});
+	});
+</script>
+	`
 )
 
 func init() {
@@ -27,7 +49,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-	args := flag.Args()
+	args = flag.Args()
 	if len(args) == 0 || len(args) > 3 {
 		PrintUsage()
 		os.Exit(1)
@@ -67,10 +89,11 @@ func main() {
 		}
 		log.Println(string(buf))
 	case "compile":
-		err := gor.Compile()
-		if err != nil {
-			log.Fatal(err)
-		}
+		fallthrough
+	case "build":
+		fallthrough
+	case "c":
+		_compile()
 	case "post":
 		if len(args) == 1 {
 			log.Fatal("gor post <title>")
@@ -80,18 +103,19 @@ func main() {
 			gor.CreateNewPostWithImgs(args[1], args[2])
 		}
 	case "http":
-		log.Println("Listen at ", *http_addr)
-		log.Println(http.ListenAndServe(*http_addr, http.FileServer(http.Dir("compiled"))))
+		_http()
+	case "preview":
+		gor.HTML_EXT = _watch_js
+		_compile()
+		go _http()
+		_watch()
 	case "pprof":
 		f, _ := os.OpenFile("gor.pprof", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 		defer f.Close()
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
 		for i := 0; i < 100; i++ {
-			err := gor.Compile()
-			if err != nil {
-				log.Fatal(err)
-			}
+			_compile()
 		}
 	case ".update.zip.go":
 		d, _ := ioutil.ReadFile("gor-content.zip")
@@ -106,4 +130,64 @@ const INIT_ZIP="`
 		_zip.Sync()
 		_zip.Close()
 	}
+}
+
+func _http() {
+	log.Println("Listen at ", *http_addr)
+	sm := http.NewServeMux()
+	sm.HandleFunc("/_api/f5", f5)
+	sm.Handle("/", http.FileServer(http.Dir("compiled")))
+	log.Println(http.ListenAndServe(*http_addr, sm))
+}
+
+func _compile() {
+	err := gor.Compile()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func _watch() {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Println("fsnotify fail, on-fly watch is disable")
+		return
+	}
+	done := make(chan bool)
+	// Process events
+	go func() {
+		for {
+			select {
+			case ev := <-watcher.Event:
+				if ev.IsModify() {
+					_compile()
+					_compileVer += 1
+				}
+			case err := <-watcher.Error:
+				log.Println("error:", err)
+			}
+		}
+	}()
+	path := "posts"
+	if len(args) == 3 {
+		path = args[2]
+	}
+	log.Println("Start watching on ", path)
+	err = watcher.Watch(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	<-done
+
+	/* ... do stuff ... */
+	watcher.Close()
+}
+
+// -----------------------------
+// HTTP APIs
+
+func f5(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(fmt.Sprintf("%d", _compileVer)))
+	return
 }
