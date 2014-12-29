@@ -27,7 +27,6 @@ var (
 <script type="text/javascript">
 	$(function() {
 	var _gor_compile_ver = 0;
-	var _404 = false;
 	function _sc(data) {
 		if (parseInt(data) != _gor_compile_ver) {
 			location.reload(true);
