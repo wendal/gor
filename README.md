@@ -1,4 +1,5 @@
 ## Table of Contents
+* [Sites using gor](#sites-using-gor)
 * [English Introduction](#english-introduction)
     * [Installation](#installation)
     * [Quick Start](#quick-start)
@@ -6,7 +7,40 @@
     * [安装](#installation-安装)
     * [快速入门](#quick-start-快速入门)
 * [Copyright and License](#copyright-and-license)
-* [Sites using gor](#sites-using-gor)
+
+
+Sites using gor
+-----------------------
+正在使用Gor的博客
+-----------------------
+
+[When Go meets Raspberry Pi](http://hugozhu.myalert.info/)
+
+[RaymondChou's Blog](http://ledbk.com/)
+
+[visualfc's blog](http://visualfc.github.com/)
+
+[wendal随笔](http://wendal.net)
+
+[一个热爱木工的软件工程师](http://iwood.co.nr)
+
+[AmicusLuyang](http://imzly.me/)
+
+[Dray's Home](http://zh-w.info/)
+
+[努力加贝](http://www.nljb.net)
+
+[混沌的云](http://blog.zerob13.in/)
+
+[腾达格尔的博客](http://www.best-apps-now.com/)
+
+[阿泉网志 赵金泉的个人网站](http://zjq.in)
+
+[风笑痴](http://lunny.info)
+
+If you are also using gor, please don't hesitate to tell me by email or open an issue.
+如果也在使用,欢迎email或者开个issue告诉我们哦
+
 
 # English Introduction
 
@@ -188,33 +222,3 @@ Copyright and License
 This project is licensed under the BSD license.
 
 Copyright (C) 2013, by WendalChen wendal1985@gmail.com.
-
-Sites using gor
------------------------
-正在使用Gor的博客
------------------------
-
-[When Go meets Raspberry Pi](http://hugozhu.myalert.info/)
-
-[RaymondChou's Blog](http://ledbk.com/)
-
-[visualfc's blog](http://visualfc.github.com/)
-
-[wendal随笔](http://wendal.net)
-
-[一个热爱木工的软件工程师](http://iwood.co.nr)
-
-[AmicusLuyang](http://imzly.me/)
-
-[Dray's Home](http://zh-w.info/)
-
-[努力加贝](http://www.nljb.net)
-
-[混沌的云](http://blog.zerob13.in/)
-
-[腾达格尔的博客](http://www.best-apps-now.com/)
-
-[阿泉网志 赵金泉的个人网站](http://zjq.in)
-
-If you are also using gor, please don't hesitate to tell me by email or open an issue.
-如果也在使用,欢迎email或者开个issue告诉我们哦
