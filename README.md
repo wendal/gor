@@ -40,6 +40,8 @@ Sites using gor
 
 [Nareix](http://nareix.me/)
 
+[Wchin](http://wchin.cn/)
+
 If you are also using gor, please don't hesitate to tell me by email or open an issue.
 如果也在使用,欢迎email或者开个issue告诉我们哦
 
