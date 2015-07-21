@@ -313,6 +313,10 @@ func CtxHelpers(payload Mapper, ctxHelper map[string]func(interface{}) interface
 		_pages := make([]Mapper, 0)
 		for _, id := range ids {
 			p := pages[id.(string)]
+			if p == nil {
+				log.Println("what?! no such page " + id.(string))
+				continue
+			}
 			if current_page_id != nil {
 				p["is_active_page"] = id == current_page_id.(string)
 				//log.Println("is_active_page", id == current_page_id.(string))
