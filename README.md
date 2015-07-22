@@ -34,7 +34,7 @@ Sites using gor
 
 [腾达格尔的博客](http://www.best-apps-now.com/)
 
-[阿泉网志 赵金泉的个人网站](http://zjq.in)
+[阿泉网志 赵金泉的个人网站](http://ltecn.com/)
 
 [风笑痴](http://lunny.info)
 
