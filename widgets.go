@@ -40,7 +40,7 @@ const (
     /* * * DON'T EDIT BELOW THIS LINE * * */
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
 </script>
@@ -65,7 +65,7 @@ const (
 	(function() {
 					var ds = document.createElement('script');
 					ds.type = 'text/javascript';ds.async = true;
-					ds.src = 'http://static.duoshuo.com/embed.js';
+					ds.src = '//static.duoshuo.com/embed.js';
 					ds.charset = 'UTF-8';
 					(document.getElementsByTagName('head')[0] 
 					|| document.getElementsByTagName('body')[0]).appendChild(ds);
