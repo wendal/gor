@@ -30,8 +30,6 @@ Sites using gor
 
 [努力加贝](http://www.nljb.net)
 
-[混沌的云](http://blog.zerob13.in/)
-
 [腾达格尔的博客](http://www.best-apps-now.com/)
 
 [阿泉网志 赵金泉的个人网站](http://ltecn.com/)
