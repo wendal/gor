@@ -10,7 +10,6 @@ import (
 	"log"
 	URL "net/url"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -168,6 +167,7 @@ func BuildPayload(root string) (payload map[string]interface{}, err error) {
 	post_layout_default := cnf_posts.Layout()
 	page_layout_default := cnf_pages.Layout()
 
+	post_permalink_default := cnf_posts.Permalink()
 	page_permalink_default := cnf_pages.Permalink()
 
 	// 为Page和Post补齐layout和permalink
@@ -245,7 +245,7 @@ func BuildPayload(root string) (payload map[string]interface{}, err error) {
 			post["layout"] = post_layout_default
 		}
 		if post.Permalink() == "" {
-			post["permalink"] = strings.TrimSuffix(path.Base(post["id"].(string)), ".md")
+			post["permalink"] = post_permalink_default
 		}
 
 		for _, _tag := range post.Tags() {
