@@ -32,7 +32,7 @@ Sites using gor
 
 [腾达格尔的博客](http://www.best-apps-now.com/)
 
-[阿泉网志 赵金泉的个人网站](http://ltecn.com/)
+[阿泉来咧 赵金泉的个人网站](http://alair.cn)
 
 [风笑痴](http://lunny.info)
 
