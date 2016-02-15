@@ -42,6 +42,8 @@ Sites using gor
 
 [王浩的小课桌](http://sakyawang.github.io/)
 
+[leonardyp](http://leonardyp.github.io/)
+
 If you are also using gor, please don't hesitate to tell me by email or open an issue.
 如果也在使用,欢迎email或者开个issue告诉我们哦
 
