@@ -26,7 +26,7 @@ Sites using gor
 
 [AmicusLuyang](http://imzly.me/)
 
-[Dray's Home](http://zh-w.info/)
+[Dray's Home](http://gor.idc.wf/)
 
 [努力加贝](http://www.nljb.net)
 
