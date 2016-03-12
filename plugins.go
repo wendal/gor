@@ -53,13 +53,15 @@ func (*RssPlugin) Exec(topCtx mustache.Context) {
 	base_path := FromCtx(topCtx, "urls.base_path").(string)
 	title := FromCtx(topCtx, "site.title").(string)
 	production_url := FromCtx(topCtx, "site.config.production_url").(string)
+	production_url_base := FromCtx(topCtx, "site.config.production_url_base").(string)
+
 	pubDate := time.Now().Format(time.RFC822)
 	post_ids := FromCtx(topCtx, "db.posts.chronological").([]string)
 	posts := FromCtx(topCtx, "db.posts.dictionary").(map[string]Mapper)
 	items := make([]RssItem, 0)
 	for _, id := range post_ids {
 		post := posts[id]
-		item := RssItem{post.GetString("title"), production_url + post.Url(), post["_date"].(time.Time).Format("2006-01-02 03:04:05 +0800"), post["_content"].(*DocContent).Main}
+		item := RssItem{post.GetString("title"), production_url_base + post.Url(), post["_date"].(time.Time).Format("2006-01-02 03:04:05 +0800"), post["_content"].(*DocContent).Main}
 		items = append(items, item)
 	}
 	rss := &Rss{"2.0", &RssChannel{title, production_url, pubDate, items}}
@@ -105,6 +107,7 @@ func (SitemapPlugin) Exec(topCtx mustache.Context) {
 	f.WriteString("\n")
 
 	production_url := FromCtx(topCtx, "site.config.production_url").(string)
+	production_url_base := FromCtx(topCtx, "site.config.production_url_base").(string)
 
 	f.WriteString("\t<url>\n")
 	f.WriteString("\t\t<loc>")
@@ -118,7 +121,7 @@ func (SitemapPlugin) Exec(topCtx mustache.Context) {
 		f.WriteString("\t<url>\n")
 		post := posts[id]
 		f.WriteString("\t\t<loc>")
-		xml.Escape(f, []byte(production_url))
+		xml.Escape(f, []byte(production_url_base))
 		xml.Escape(f, []byte(post.Url()))
 		f.WriteString("</loc>\n")
 		f.WriteString(fmt.Sprintf("\t\t<lastmod>%s</lastmod>\n", post["date"])) // 是否应该抹除呢? 考虑中

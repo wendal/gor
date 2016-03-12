@@ -78,6 +78,7 @@ func BuildPayload(root string) (payload map[string]interface{}, err error) {
 		return
 	}
 	cnf["production_url"] = production_url
+	cnf["production_url_base"] = production_url
 
 	// 域名保证是http/https开头,故,以下的除了,可以按https
 	rootUrl := production_url
@@ -90,6 +91,7 @@ func BuildPayload(root string) (payload map[string]interface{}, err error) {
 		if !strings.HasSuffix(basePath, "/") {
 			basePath += "/"
 		}
+		cnf["production_url_base"] = rootUrl[:len("https://")+pos]
 	}
 
 	// 读取theme的配置

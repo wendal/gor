@@ -443,6 +443,7 @@ func PrapareAssets(theme string, layoutName string, topCtx mustache.Context) str
 	//theme_media_path := urls["theme_media"]
 	theme_javascripts_path := urls["theme_javascripts"]
 	theme_stylesheets_path := urls["theme_stylesheets"]
+	base_path := urls["base_path"]
 
 	assets := make([]string, 0)
 
@@ -467,7 +468,7 @@ func PrapareAssets(theme string, layoutName string, topCtx mustache.Context) str
 				if strings.HasPrefix(stylesheet, "http://") || strings.HasPrefix(stylesheet, "https:") {
 					assets = append(assets, fmt.Sprintf("<link href=\"%s\" type=\"text/css\" rel=\"stylesheet\" media=\"all\">", stylesheet))
 				} else {
-					assets = append(assets, fmt.Sprintf("<link href=\"%s/%s\" type=\"text/css\" rel=\"stylesheet\" media=\"all\">", "/assets/"+theme+"/widgets", stylesheet))
+					assets = append(assets, fmt.Sprintf("<link href=\"%s/%s\" type=\"text/css\" rel=\"stylesheet\" media=\"all\">", base_path+"assets/"+theme+"/widgets", stylesheet))
 				}
 			}
 		}
