@@ -49,7 +49,7 @@ func init() {
 func main() {
 	flag.Parse()
 	args = flag.Args()
-	if len(args) == 0 || len(args) > 3 {
+	if len(args) == 0 || len(args) > 4 {
 		PrintUsage()
 		os.Exit(1)
 	}
@@ -100,6 +100,14 @@ func main() {
 			gor.CreateNewPost(args[1])
 		} else {
 			gor.CreateNewPostWithImgs(args[1], args[2])
+		}
+	case "addimg":
+		if len(args) == 3 {
+			gor.AddImgs(args[1], args[2], "")
+		} else if len(args) == 4 {
+			gor.AddImgs(args[1], args[2], args[3])
+		} else {
+			log.Fatal("gor post <title> <dir> or <date>")
 		}
 	case "http":
 		_http()

@@ -79,6 +79,51 @@ func CreateNewPostWithImgs(title, imgsrc string) {
 	}
 }
 
+func AddImgs(title, imgsrc string, date string) {
+	
+	cfg := loadConfig(".")
+	for k, v := range cfg {
+		log.Println(k, "=", v)
+	}
+	
+	if !IsGorDir(".") {
+		log.Fatal("Not Gor Dir, need config.yml")
+	}
+	
+	if (date == "") {
+		date = time.Now().Format("2006-01-02")
+	}
+	
+	path := "posts/" + date  + "-" + strings.Replace(title, " ", "-", -1) + ".md"
+	_, err := os.Stat(path)
+	if err != nil || os.IsNotExist(err) {
+		log.Fatal("Post File Not Exist?!", path)
+	}
+
+	start := strings.LastIndex(path, "/") + 1
+	end := strings.LastIndex(path, ".")
+	if start < 0 || end < 0 {
+		log.Fatal("path not complate? ", path)
+	}
+	post := path[start:end]
+
+	// 如果创建失败直接exit，所以不用检查
+	imgs := cpPostImgs(post, imgsrc, cfg)
+	tags := generateImgLinks(imgs, cfg)
+
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	for _, tag := range tags {
+		if _, err = f.WriteString("\n" + tag + "\n"); err != nil {
+			panic(err)
+		}
+	}	
+}
+
 func cpPostImgs(post string, imgsrc string, cfg Mapper) (imgtag []string) {
 	files, err := ioutil.ReadDir(imgsrc)
 	if files == nil || err != nil {
