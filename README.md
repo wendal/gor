@@ -225,6 +225,6 @@ To install:
 Copyright and License
 ----------------------
 
-This project is licensed under the BSD license.
+This project is licensed under the [BSD 3 Clause License](https://spdx.org/licenses/BSD-3-Clause.html).
 
 Copyright (C) 2013, by WendalChen wendal1985@gmail.com.
