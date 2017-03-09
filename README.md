@@ -46,6 +46,10 @@ Sites using gor
 
 [Forks 的代码工坊](http://blog.503web.com/)
 
+[Linux使用实例](http://linuxuc.com)
+
+[http://raspi.in](树莓派来咧)
+
 If you are also using gor, please don't hesitate to tell me by email or open an issue.
 如果也在使用,欢迎email或者开个issue告诉我们哦
 
