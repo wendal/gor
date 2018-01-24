@@ -79,7 +79,7 @@ func (*RssPlugin) Exec(topCtx mustache.Context) {
 	// FUCK!! 官方的xml库极其弱智,无法为struct指定名字
 	f.WriteString(`<?xml version="1.0"  encoding="UTF-8"?>` + "\n" + `<rss version="2.0">`)
 	str := string(data)
-	f.Write([]byte(str[len(`<rss version="2.0">`)+1 : len(str)-len("</rss>")]))
+	f.Write([]byte(str[len(`<rss version="2.0">`)+1: len(str)-len("</rss>")]))
 	f.WriteString("</rss>")
 	f.Sync()
 	return
@@ -124,7 +124,8 @@ func (SitemapPlugin) Exec(topCtx mustache.Context) {
 		xml.Escape(f, []byte(production_url_base))
 		xml.Escape(f, []byte(post.Url()))
 		f.WriteString("</loc>\n")
-		f.WriteString(fmt.Sprintf("\t\t<lastmod>%s</lastmod>\n", post["date"])) // 是否应该抹除呢? 考虑中
+		f.WriteString(fmt.Sprintf("\t\t<lastmod>%s</lastmod>\n",
+			formatSitemapDate(post["date"].(string), post["_date"].(time.Time)))) // 是否应该抹除呢? 考虑中
 		f.WriteString("\t\t<changefreq>weekly</changefreq>\n")
 		f.WriteString("\t</url>\n")
 	}
@@ -132,6 +133,13 @@ func (SitemapPlugin) Exec(topCtx mustache.Context) {
 	f.WriteString(`</urlset>`)
 	f.Sync()
 	// ~_~ 大功告成!
+}
+func formatSitemapDate(date string, _date time.Time) string {
+	if len(date) > len("2006-01-02") {
+		return _date.Format("2006-01-02T15:04:05-07:00")
+	} else {
+		return date
+	}
 }
 
 type JekyllOff struct{}

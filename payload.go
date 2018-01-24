@@ -198,11 +198,11 @@ func BuildPayload(root string) (payload map[string]interface{}, err error) {
 		page_url := ""
 		switch {
 		case strings.HasSuffix(page_id, "index.html"):
-			page_url = page_id[0 : len(page_id)-len("index.html")]
+			page_url = page_id[0: len(page_id)-len("index.html")]
 		case strings.HasSuffix(page_id, "index.md"):
-			page_url = page_id[0 : len(page_id)-len("index.md")]
+			page_url = page_id[0: len(page_id)-len("index.md")]
 		default:
-			page_url = page_id[0 : len(page_id)-len(filepath.Ext(page_id))]
+			page_url = page_id[0: len(page_id)-len(filepath.Ext(page_id))]
 			if page["title"] == nil && !strings.HasSuffix(page_url, "/") {
 				page["title"] = strings.Title(filepath.Base(page_url))
 			}
@@ -412,9 +412,9 @@ func LoadPost(root string, path string, fname string) (ctx Mapper, err error) {
 		return
 	}
 	var date time.Time
-	date, err = time.Parse("2006-01-02", ctx["date"].(string))
+	date, err = time.ParseInLocation("2006-01-02", ctx["date"].(string), time.Local)
 	if err != nil {
-		date2, err2 := time.Parse("2006-01-02 15:04:05", ctx["date"].(string))
+		date2, err2 := time.ParseInLocation("2006-01-02 15:04:05", ctx["date"].(string), time.Local)
 		if err2 != nil {
 			err = errors.New("BAD date >>" + path + " " + err.Error() + " " + err2.Error())
 			return
@@ -654,7 +654,7 @@ func LoadLayouts(root string, theme string) map[string]Mapper {
 			}
 			layout["_content"] = &DocContent{"", "", tpl}
 		}
-		layoutName := filename[0 : len(filename)-len(filepath.Ext(filename))]
+		layoutName := filename[0: len(filename)-len(filepath.Ext(filename))]
 		layouts[layoutName] = layout
 		log.Println("Load Layout : " + layoutName)
 		return nil
