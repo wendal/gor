@@ -48,7 +48,7 @@ const (
 <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
 `
 	tpl_google_prettify = `
-<script src="//cdnjscn.b0.upaiyun.com/libs/prettify/r298/prettify.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.js"></script>
 <script>
   var pres = document.getElementsByTagName("pre");
   for (var i=0; i < pres.length; ++i) {
