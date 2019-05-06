@@ -28,16 +28,142 @@ tags:
 	IMG_LOCALDIR  = `media/`
 )
 
+var reservedNames = map[string]struct{} {
+	"CON":{}, 
+	"PRN":{}, 
+	"AUX":{}, 
+	"NUL":{},
+	"COM1":{}, 
+	"COM2":{}, 
+	"COM3":{}, 
+	"COM4":{}, 
+	"COM5":{}, 
+	"COM6":{}, 
+	"COM7":{}, 
+	"COM8":{}, 
+	"COM9":{},
+	"LPT1":{}, 
+	"LPT2":{}, 
+	"LPT3":{}, 
+	"LPT4":{}, 
+	"LPT5":{}, 
+	"LPT6":{}, 
+	"LPT7":{}, 
+	"LPT8":{}, 
+	"LPT9":{},
+	".":{},
+	"..":{},
+	"'":{},
+	";":{},
+	",":{},
+	" ":{},
+}
+
+var reservedChars = map[string]struct{} {
+	" ":{},
+	">":{}, 
+	"<":{}, 
+	":":{}, 
+	"\"":{}, 
+	"\\":{}, 
+	"/":{}, 
+	"|":{}, 
+	"?":{}, 
+	"*":{}, 
+	"'":{}, 
+	".":{},
+	";":{},
+	",":{},
+	"x0": {}, // ascii 0
+	"x1": {}, 
+	"x2": {}, 
+	"x3": {}, 
+	"x4": {}, 
+	"x5": {}, 
+	"x6": {}, 
+	"x7": {}, 
+	"x8": {}, 
+	"x9": {}, 
+	"xa": {}, 
+	"xb": {}, 
+	"xc": {}, 
+	"xd": {}, 
+	"xe": {}, 
+	"xf": {}, 
+	"x10": {}, 
+	"x11": {}, 
+	"x12": {}, 
+	"x13": {}, 
+	"x14": {}, 
+	"x15": {}, 
+	"x16": {}, 
+	"x17": {}, 
+	"x18": {}, 
+	"x19": {}, 
+	"x1a": {}, 
+	"x1b": {}, 
+	"x1c": {}, 
+	"x1d": {}, 
+	"x1e": {}, 
+	"x1f": {},  // ascii 31
+}
+
+// convert post title to path,
+// print fatal messages for invalid title and exit or
+// return path.
+func postPath(title string) (path string) {
+	// replace invalid characters
+	// https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
+	/*
+		The following reserved characters:
+
+		< (less than)
+		> (greater than)
+		: (colon)
+		" (double quote)
+		/ (forward slash)
+		\ (backslash)
+		| (vertical bar or pipe)
+		? (question mark)
+		* (asterisk)
+		ASCII 0-31 (ASCII control characters)
+
+		===
+		The following filenames are reserved:
+
+		Windows:
+
+		CON, PRN, AUX, NUL 
+		COM1, COM2, COM3, COM4, COM5, COM6, COM7, COM8, COM9
+		LPT1, LPT2, LPT3, LPT4, LPT5, LPT6, LPT7, LPT8, LPT9
+	*/
+	if _, ok := reservedNames[title]; ok {
+		log.Printf("Reserved title: %s\n", title)
+		log.Println("Reserved list:")
+		for val := range reservedNames {
+			log.Printf("%s, ", val)
+		}
+		log.Println("")
+		log.Fatalf("Invalid title (reserved): %s\n", title)
+	}
+	for val := range reservedChars {
+		title = strings.Replace(title, val, "-", -1)
+	}
+	path = "posts/" + time.Now().Format("2006-01-02") + "-" + title + ".md"
+	return path
+}
+
 // 创建一个新post
 // TODO 移到到其他地方?
 func CreateNewPost(title string) (path string) {
 	if !IsGorDir(".") {
 		log.Fatal("Not Gor Dir, need config.yml")
 	}
-	path = "posts/" + time.Now().Format("2006-01-02") + "-" + strings.Replace(title, " ", "-", -1) + ".md"
+	path = postPath(title)
 	_, err := os.Stat(path)
 	if err == nil || !os.IsNotExist(err) {
-		log.Fatal("Post File Exist?!", path)
+		fmt.Printf("Create Post File Error: \n %v\n", err)
+		log.Fatal("Post File Exist ?: ", path)
 	}
 	err = ioutil.WriteFile(path, []byte(fmt.Sprintf(TPL_NEW_POST, title, time.Now().Format("2006-01-02"))), os.ModePerm)
 	if err != nil {
