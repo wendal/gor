@@ -432,7 +432,9 @@ func WriteTo(url string, content string) {
 	if HTML_EXT != "" {
 		content += HTML_EXT
 	}
-	os.WriteFile(dstPath, []byte(content), os.ModePerm)
+	if err := os.WriteFile(dstPath, []byte(content), os.ModePerm); err != nil {
+		log.Println("ERR WriteTo", dstPath, err)
+	}
 }
 
 func PrapareAssets(theme string, layoutName string, topCtx mustache.Context) string {

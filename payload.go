@@ -632,7 +632,9 @@ func LoadLayouts(root string, theme string) map[string]Mapper {
 		if err != nil {
 			return err
 		}
-		f.Seek(0, io.SeekStart)
+		if _, err = f.Seek(0, io.SeekStart); err != nil {
+			return err
+		}
 		if string(buf) == "---" {
 			layout, err = ReadMuPage(path)
 			if err != nil {

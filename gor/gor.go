@@ -124,8 +124,14 @@ func main() {
 			_compile()
 		}
 	case ".update.zip.go":
-		d, _ := os.ReadFile("gor-content.zip")
-		_zip, _ := os.OpenFile("zip.go", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
+		d, err := os.ReadFile("gor-content.zip")
+		if err != nil {
+			log.Fatal("failed to read gor-content.zip:", err)
+		}
+		_zip, err := os.OpenFile("zip.go", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
+		if err != nil {
+			log.Fatal("failed to open zip.go for writing:", err)
+		}
 		header := `package main
 const INIT_ZIP="`
 		_zip.Write([]byte(header))
