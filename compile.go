@@ -7,7 +7,6 @@ import (
 "github.com/wendal/errors"
 "github.com/wendal/mustache"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -433,7 +432,9 @@ func WriteTo(url string, content string) {
 	if HTML_EXT != "" {
 		content += HTML_EXT
 	}
-	ioutil.WriteFile(dstPath, []byte(content), os.ModePerm)
+	if err := os.WriteFile(dstPath, []byte(content), os.ModePerm); err != nil {
+		log.Println("ERR WriteTo", dstPath, err)
+	}
 }
 
 func PrapareAssets(theme string, layoutName string, topCtx mustache.Context) string {
@@ -526,7 +527,7 @@ func copyDir(src string, target string) error {
 	if !fst.IsDir() {
 		return nil
 	}
-	finfos, err := ioutil.ReadDir(src)
+	finfos, err := os.ReadDir(src)
 	if err != nil {
 		log.Println(err)
 		return err

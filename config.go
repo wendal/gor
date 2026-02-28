@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"github.com/wendal/goyaml2"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 )
@@ -37,7 +36,7 @@ func ReadYml(path string) (cnf map[string]interface{}, err error) {
 func ReadYmlReader(r io.Reader) (cnf map[string]interface{}, err error) {
 
 	err = nil
-	buf, err := ioutil.ReadAll(r)
+	buf, err := io.ReadAll(r)
 	if err != nil || len(buf) < 3 {
 		return
 	}

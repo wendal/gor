@@ -1,0 +1,10 @@
+github.com/howeyc/fsnotify v0.9.0 h1:0gtV5JmOKH4A8SsFxG2BczSeXWWPvcMT0euZt5gDAxY=
+github.com/howeyc/fsnotify v0.9.0/go.mod h1:41HzSPxBGeFRQKEEwgh49TRw/nKBsYZ2cF1OzPjSJsA=
+github.com/russross/blackfriday v1.6.0 h1:KqfZb0pUVN2lYqZUYRddxF4OR8ZMURnJIG5Y3VRLtww=
+github.com/russross/blackfriday v1.6.0/go.mod h1:ti0ldHuxg49ri4ksnFxlkCfN+hvslNlmVHqNRXXJNAY=
+github.com/wendal/errors v0.0.0-20181209125328-7f31f4b264ec h1:bua919NvciYmjqfeZMsVkXTny1QvXMrri0X6NlqILRs=
+github.com/wendal/errors v0.0.0-20181209125328-7f31f4b264ec/go.mod h1:Q12BUT7DqIlHRmgv3RskH+UCM/4eqVMgI0EMmlSpAXc=
+github.com/wendal/goyaml2 v0.0.0-20190215120833-ee753311eeae h1:ke3nvVbPZDAsGLqBukiPAPdzgllyrQAZ4OtdzTf3z5U=
+github.com/wendal/goyaml2 v0.0.0-20190215120833-ee753311eeae/go.mod h1:CoOAlRIb5zPgRa7NEsqTVNu/26+FJ1jrIj3/NWU3hM8=
+github.com/wendal/mustache v0.0.0-20130201095610-61b948aeb760 h1:yBVQh3XiGSrCTosbppoAmxpCV2fnqE0bUjxVF9iqVdc=
+github.com/wendal/mustache v0.0.0-20130201095610-61b948aeb760/go.mod h1:e+ZfVXOi5GtWL3bAoE3ErzEnNyguYqHVegUqgbFtMZM=

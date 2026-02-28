@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -23,7 +22,10 @@ func CmdInit(path string) {
 	}
 
 	decoder := base64.NewDecoder(base64.StdEncoding, bytes.NewBufferString(INIT_ZIP))
-	b, _ := ioutil.ReadAll(decoder)
+	b, err := io.ReadAll(decoder)
+	if err != nil {
+		log.Fatalf("failed to read embedded init zip data: %v", err)
+	}
 
 	z, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
 	if err != nil {

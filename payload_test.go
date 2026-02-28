@@ -1,6 +1,7 @@
 package gor
 
 import (
+	"os"
 	"testing"
 )
 
@@ -11,7 +12,11 @@ func TestDebug(*testing.T) {
 }
 
 func TestPayLoad(t *testing.T) {
-	_, err := MakePayLoad("H:/wendal_net")
+	root := "H:/wendal_net"
+	if _, err := os.Stat(root); os.IsNotExist(err) {
+		t.Skip("skipping: test data directory not available:", root)
+	}
+	_, err := MakePayLoad(root)
 	if err != nil {
 		t.Error(err)
 	}

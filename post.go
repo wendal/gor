@@ -3,7 +3,6 @@ package gor
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -165,7 +164,7 @@ func CreateNewPost(title string) (path string) {
 		fmt.Printf("Create Post File Error: \n %v\n", err)
 		log.Fatal("Post File Exist ?: ", path)
 	}
-	err = ioutil.WriteFile(path, []byte(fmt.Sprintf(TPL_NEW_POST, title, time.Now().Format("2006-01-02"))), os.ModePerm)
+	err = os.WriteFile(path, []byte(fmt.Sprintf(TPL_NEW_POST, title, time.Now().Format("2006-01-02"))), os.ModePerm)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -251,7 +250,7 @@ func AddImgs(title, imgsrc string, date string) {
 }
 
 func cpPostImgs(post string, imgsrc string, cfg Mapper) (imgtag []string) {
-	files, err := ioutil.ReadDir(imgsrc)
+	files, err := os.ReadDir(imgsrc)
 	if files == nil || err != nil {
 		log.Println("no img file exists.")
 		return nil
