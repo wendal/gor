@@ -40,7 +40,7 @@ func ToStruct(m map[string]interface{}, val reflect.Value) {
 			if _str, ok := v.(string); ok {
 				field.SetString(_str)
 			} else {
-				field.SetString(fmt.Sprint("%v", v))
+				field.SetString(fmt.Sprintf("%v", v))
 			}
 		case reflect.Int:
 			fallthrough

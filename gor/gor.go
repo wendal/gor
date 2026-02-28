@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/howeyc/fsnotify"
 	"github.com/wendal/gor"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -125,7 +124,7 @@ func main() {
 			_compile()
 		}
 	case ".update.zip.go":
-		d, _ := ioutil.ReadFile("gor-content.zip")
+		d, _ := os.ReadFile("gor-content.zip")
 		_zip, _ := os.OpenFile("zip.go", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 		header := `package main
 const INIT_ZIP="`

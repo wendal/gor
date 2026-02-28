@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	URL "net/url"
 	"os"
@@ -478,7 +477,7 @@ func ReadMuPage(path string) (ctx map[string]interface{}, err error) {
 		return
 	}
 
-	d, err := ioutil.ReadAll(br)
+	d, err := io.ReadAll(br)
 	if err != nil {
 		err = errors.New(path + " --> " + err.Error())
 		return
@@ -633,7 +632,7 @@ func LoadLayouts(root string, theme string) map[string]Mapper {
 		if err != nil {
 			return err
 		}
-		f.Seek(0, os.SEEK_SET)
+		f.Seek(0, io.SeekStart)
 		if string(buf) == "---" {
 			layout, err = ReadMuPage(path)
 			if err != nil {

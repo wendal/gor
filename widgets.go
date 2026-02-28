@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/wendal/errors"
 	"github.com/wendal/mustache"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -288,7 +288,7 @@ func BuildCustomWidget(name string, dir string, cnf Mapper) (Widget, []string, e
 		return nil, nil, errors.New("Fail to load Widget Layout" + dir + "\n" + err.Error())
 	}
 	defer f.Close()
-	cont, err := ioutil.ReadAll(f)
+	cont, err := io.ReadAll(f)
 	if err != nil {
 		return nil, nil, errors.New("Fail to load Widget Layout" + dir + "\n" + err.Error())
 	}
